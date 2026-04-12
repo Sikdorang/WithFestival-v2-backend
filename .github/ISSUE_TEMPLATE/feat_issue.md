@@ -5,8 +5,9 @@ title: "[feat] "
 labels: feature
 assignees: ""
 ---
-## 📝 Issue Title Convention
 <!-- 
+
+## 📝 Issue Title Convention
 이슈 제목은 아래 형식을 따라 작성합니다.
 
 형식:
