@@ -1,0 +1,39 @@
+# Dependencies
+node_modules
+
+# Environment
+.env
+.env.*.local
+
+# Build / generated
+dist
+/generated/prisma
+*.tsbuildinfo
+
+# SQLite (로컬)
+dev.db
+*.db
+*.db-journal
+
+# 컨테이너 볼륨용 로컬 데이터 디렉터리
+data/
+
+# Logs & coverage
+logs/
+*.log
+npm-debug.log*
+coverage/
+.nyc_output/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.cursor/
+
+# Temp
+*.swp
+*.swo
+/tmp/

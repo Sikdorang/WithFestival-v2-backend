@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: docker.io/library/mysql:8.4
+    command: ["mysqld", "--mysql-native-password=ON"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: withfestival
+      MYSQL_USER: withfestival
+      MYSQL_PASSWORD: withfestival
+    ports:
+      - "13306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    volumes:
+      - withfestival-mysql:/var/lib/mysql
+
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: mysql://withfestival:withfestival@mysql:3306/withfestival
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  withfestival-mysql:
