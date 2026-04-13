@@ -1,0 +1,112 @@
+// Store = 기존 booth. 주문 그룹(Order) · 상세(OrderItem) · 대기(Waiting) · 메뉴(Menu)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Store {
+  id            Int    @id @default(autoincrement())
+  name          String @db.VarChar(200)
+  accountNumber String? @db.VarChar(100)
+  notice        String? @db.Text
+  event         String? @db.VarChar(500)
+  /// 기존 number 역할
+  authCode      String @db.VarChar(64)
+
+  createdAt DateTime @default(now())
+
+  menus    Menu[]
+  waitings Waiting[]
+  orders   Order[]
+
+  @@unique([authCode])
+}
+
+model Menu {
+  id          Int     @id @default(autoincrement())
+  storeId     Int
+  name        String  @db.VarChar(200)
+  price       Int
+  description String? @db.Text
+  imageUrl    String? @db.VarChar(512)
+
+  store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([storeId])
+}
+
+model Order {
+  id         Int @id @default(autoincrement())
+  storeId    Int
+
+  totalPrice Int
+  /// 주문 처리 상태 (완료 / 취소)
+  status OrderStatus
+
+  /// 결제 상태 (기존 `paymentCheck Boolean` 대신 enum으로 통일)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  customerName String? @db.VarChar(200)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+
+  @@index([storeId])
+}
+
+model OrderItem {
+  id       Int @id @default(autoincrement())
+  orderId  Int
+  menuId   Int
+  quantity Int
+  /// 주문 시점 스냅샷 가격
+  price    Int
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menu  Menu  @relation(fields: [menuId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([menuId])
+}
+
+model Waiting {
+  id          Int @id @default(autoincrement())
+  storeId     Int
+  name        String @db.VarChar(200)
+  partySize   Int
+  phoneNumber String? @db.VarChar(32)
+  status      WaitingStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+}
+
+enum OrderStatus {
+  COMPLETED
+  CANCELED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum WaitingStatus {
+  WAITING
+  ENTERED
+  CANCELED
+}
