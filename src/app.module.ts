@@ -6,10 +6,12 @@ import { StoresModule } from './stores/stores.module';
 import { WaitingsModule } from './waitings/waitings.module';
 
 @Module({
-<<<<<<< Updated upstream
-  imports: [PrismaModule, AuthModule, StoresModule, MenusModule],
-=======
-  imports: [PrismaModule, AuthModule, StoresModule, WaitingsModule],
->>>>>>> Stashed changes
+  imports: [
+    PrismaModule,
+    AuthModule,
+    StoresModule,
+    MenusModule,
+    WaitingsModule,
+  ],
 })
 export class AppModule {}
