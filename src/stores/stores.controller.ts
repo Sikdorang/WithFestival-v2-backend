@@ -1,6 +1,11 @@
 import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
+import {
+  ApiStoreCreateDocs,
+  ApiStoresControllerDocs,
+  ApiStoreJwtPatch,
+} from '../swagger/stores/stores.swagger';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreAccountNumberDto } from './dto/update-store-account-number.dto';
 import { UpdateStoreEventDto } from './dto/update-store-event.dto';
@@ -8,17 +13,20 @@ import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { StoresService } from './stores.service';
 
+@ApiStoresControllerDocs()
 @Controller('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
   @Post()
+  @ApiStoreCreateDocs()
   create(@Body() dto: CreateStoreDto) {
     return this.storesService.create(dto);
   }
 
   @Patch('name')
   @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('name')
   updateName(
     @CurrentStoreId() storeId: number,
     @Body() dto: UpdateStoreNameDto,
@@ -28,6 +36,7 @@ export class StoresController {
 
   @Patch('account-number')
   @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('account-number')
   updateAccountNumber(
     @CurrentStoreId() storeId: number,
     @Body() dto: UpdateStoreAccountNumberDto,
@@ -37,6 +46,7 @@ export class StoresController {
 
   @Patch('notice')
   @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('notice')
   updateNotice(
     @CurrentStoreId() storeId: number,
     @Body() dto: UpdateStoreNoticeDto,
@@ -46,6 +56,7 @@ export class StoresController {
 
   @Patch('event')
   @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('event')
   updateEvent(
     @CurrentStoreId() storeId: number,
     @Body() dto: UpdateStoreEventDto,

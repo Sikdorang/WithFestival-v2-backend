@@ -27,6 +27,10 @@ services:
     environment:
       DATABASE_URL: mysql://withfestival:withfestival@mysql:3306/withfestival
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_REGION: ${AWS_REGION:-ap-southeast-2}
+      S3_BUCKET: ${S3_BUCKET:-}
     depends_on:
       mysql:
         condition: service_healthy
