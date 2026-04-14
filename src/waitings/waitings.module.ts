@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
-import { WaitingsController } from './waitings.controller';
+import { AuthModule } from '../auth/auth.module';
+import {
+  WaitingsPublicController,
+  WaitingsStaffController,
+} from './waitings.controller';
 import { WaitingsService } from './waitings.service';
 
 @Module({
-  controllers: [WaitingsController],
+  imports: [AuthModule],
+  controllers: [WaitingsPublicController, WaitingsStaffController],
   providers: [WaitingsService],
 })
 export class WaitingsModule {}

@@ -20,5 +20,11 @@ jobs:
       - name: Install deps
         run: npm install
 
+      # generated/prisma 는 git에 없음 → 빌드 전 클라이언트 생성 필수
+      - name: Prisma generate
+        env:
+          DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/ci
+        run: npx prisma generate
+
       - name: Build check
         run: npm run build
