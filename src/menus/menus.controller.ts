@@ -1,6 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -12,16 +18,19 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiMenuCreateDocs,
+  ApiMenuDeleteDocs,
+  ApiMenuPatchDocs,
   ApiMenusControllerDocs,
 } from '../swagger/menus/menus.swagger';
 import { CreateMenuDto } from './dto/create-menu.dto';
+import { UpdateMenuDto } from './dto/update-menu.dto';
 import { MenusService } from './menus.service';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 @ApiMenusControllerDocs()
 @UseGuards(JwtAuthGuard)
-@Controller('stores/menus')
+@Controller('menus')
 export class MenusController {
   constructor(private readonly menusService: MenusService) {}
 
@@ -39,5 +48,37 @@ export class MenusController {
     @Body() dto: CreateMenuDto,
   ) {
     return this.menusService.createWithImage(storeId, image, dto);
+  }
+
+  @Patch(':id')
+  @ApiMenuPatchDocs()
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: memoryStorage(),
+      limits: { fileSize: MAX_IMAGE_BYTES },
+    }),
+  )
+  update(
+    @CurrentStoreId() storeId: number,
+    @Param('id', ParseIntPipe) menuId: number,
+    @UploadedFile() image: Express.Multer.File | undefined,
+    @Body() dto: UpdateMenuDto,
+  ) {
+    return this.menusService.updateWithOptionalImage(
+      storeId,
+      menuId,
+      image,
+      dto,
+    );
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiMenuDeleteDocs()
+  remove(
+    @CurrentStoreId() storeId: number,
+    @Param('id', ParseIntPipe) menuId: number,
+  ) {
+    return this.menusService.remove(storeId, menuId);
   }
 }

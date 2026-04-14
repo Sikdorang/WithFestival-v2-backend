@@ -17,7 +17,9 @@ OpenAPI 데코·DTO 메타는 도메인별 `src/swagger/auth/`, `stores/`, `menu
 
 ### 메뉴 등록 (JWT + 이미지)
 
-`POST /stores/menus` — `multipart/form-data`: 필드 `image`(파일), `name`, `price`(숫자), 선택 `description`. 스토어는 JWT `sub`의 `storeId`에 연결됩니다. S3에는 `menus/{storeId}/{uuid}.확장자` 형태로 올리고, DB `imageUrl`에는 객체의 HTTPS URL을 저장합니다.
+`POST /menus` — `multipart/form-data`: 필드 `image`(파일), `name`, `price`(숫자), 선택 `description`. 스토어는 JWT `sub`의 `storeId`에 연결됩니다. S3에는 `menus/{storeId}/{uuid}.확장자` 형태로 올리고, DB `imageUrl`에는 객체의 HTTPS URL을 저장합니다.  
+`PATCH /menus/:id` — 동일한 multipart 필드를 **보낸 것만** 반영(이미지·이름·가격·설명 선택).  
+`DELETE /menus/:id` — **soft delete**(`deleted` → true, 기본 false). 활성 메뉴만 대상이며 성공 시 **204**.
 
 ## 컨테이너 (Podman / Docker)
 
