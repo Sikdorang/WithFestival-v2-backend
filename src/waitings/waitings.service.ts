@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { WaitingStatus } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWaitingDto } from './dto/create-waiting.dto';
 import { UpdateWaitingStatusDto } from './dto/update-waiting-status.dto';
@@ -6,6 +7,17 @@ import { UpdateWaitingStatusDto } from './dto/update-waiting-status.dto';
 @Injectable()
 export class WaitingsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /** ENTERED·CANCELED가 아닌 건만 = WAITING(줄 대기 중) */
+  async listActiveForStore(storeId: number) {
+    return this.prisma.waiting.findMany({
+      where: {
+        storeId,
+        status: { notIn: [WaitingStatus.ENTERED, WaitingStatus.CANCELED] },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
 
   async updateStatus(
     storeId: number,
@@ -38,6 +50,7 @@ export class WaitingsService {
         name: dto.name,
         phoneNumber: dto.phoneNumber,
         partySize: dto.partySize,
+        status: WaitingStatus.WAITING,
       },
     });
   }
