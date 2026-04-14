@@ -1,30 +1,32 @@
-name: CI
+name: Deploy to EC2
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Node
-        uses: actions/setup-node@v4
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          node-version: 20
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/ubuntu/app
 
-      - name: Install deps
-        run: npm install
+            git pull origin main
 
-      # generated/prisma 는 git에 없음 → 빌드 전 클라이언트 생성 필수
-      - name: Prisma generate
-        env:
-          DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/ci
-        run: npx prisma generate
+            podman build -t my-app .
 
-      - name: Build check
-        run: npm run build
+            podman stop my-app || true
+            podman rm my-app || true
+
+            podman run -d \
+              --name my-app \
+              -p 3000:3000 \
+              my-app
