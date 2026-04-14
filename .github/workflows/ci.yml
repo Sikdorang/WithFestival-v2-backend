@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm install
+
+      # generated/prisma 는 git에 없음 → 빌드 전 클라이언트 생성 필수
+      - name: Prisma generate
+        env:
+          DATABASE_URL: mysql://ci:ci@127.0.0.1:3306/ci
+        run: npx prisma generate
+
+      - name: Build check
+        run: npm run build
