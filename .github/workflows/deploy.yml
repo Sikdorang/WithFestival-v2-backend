@@ -1,23 +1,24 @@
-name: Deploy to EC2
+name: CI
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/WithFestival-v2-backend
-            git pull origin main
-            podman compose down
-            podman compose up -d --build
+          node-version: 20
+
+      - name: Install deps
+        run: npm install
+
+      - name: Build check
+        run: npm run build
