@@ -35,7 +35,7 @@ const WAITING_STATUS_PATCH_BODY = {
         type: 'string',
         enum: ['ENTERED', 'CANCELED'],
         example: 'ENTERED',
-        description: 'ENTERED(유효 대기) 또는 CANCELED(취소)',
+        description: 'ENTERED(입장 처리) 또는 CANCELED(취소)',
       },
     },
   },
@@ -49,7 +49,7 @@ const WAITING_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '대기 등록(고객)',
       description:
-        'JWT 없음. **REST:** `Store` 하위 리소스로 `POST /stores/{storeId}/waitings`. 본문에는 예약자 정보만 둡니다. `status`는 기본값 **ENTERED**로 생성됩니다.',
+        'JWT 없음. **REST:** `Store` 하위 리소스로 `POST /stores/{storeId}/waitings`. 본문에는 예약자 정보만 둡니다. `status`는 **WAITING**(줄 대기)으로 생성됩니다.',
     }),
     ApiConsumes('application/json'),
     ApiParam({
@@ -72,6 +72,21 @@ export const ApiWaitingsStaffControllerDocs = () =>
     ApiTags(WAITINGS_SWAGGER_TAG),
     ApiBearerAuth(SWAGGER_JWT_REF),
   );
+
+const WAITING_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '대기 목록(부스)',
+      description:
+        '**JWT 필수.** `sub`(store PK)와 일치하는 스토어의 웨이팅만 조회합니다. **ENTERED·CANCELED가 아닌 건만** 반환합니다(현재는 **WAITING**만 해당). `createdAt` 오름차순.',
+    }),
+    ApiOkResponse({ description: 'Waiting 배열' }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+  ],
+];
+
+export const ApiWaitingsListDocs = () =>
+  composeMethodGroups(WAITING_LIST_DECORATOR_GROUPS);
 
 const WAITING_PATCH_STATUS_DECORATOR_GROUPS: DecoratorArg[][] = [
   [

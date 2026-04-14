@@ -1,9 +1,10 @@
-import { Body, Controller, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiWaitingsCreateDocs,
   ApiWaitingsPublicControllerDocs,
+  ApiWaitingsListDocs,
   ApiWaitingsStaffControllerDocs,
   ApiWaitingStatusPatchDocs,
 } from '../swagger/waitings/waitings.swagger';
@@ -32,6 +33,12 @@ export class WaitingsPublicController {
 @Controller('waitings')
 export class WaitingsStaffController {
   constructor(private readonly waitingsService: WaitingsService) {}
+
+  @Get()
+  @ApiWaitingsListDocs()
+  list(@CurrentStoreId() storeId: number) {
+    return this.waitingsService.listActiveForStore(storeId);
+  }
 
   @Patch(':id')
   @ApiWaitingStatusPatchDocs()

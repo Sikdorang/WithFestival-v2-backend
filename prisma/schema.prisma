@@ -87,8 +87,8 @@ model Waiting {
   name        String @db.VarChar(200)
   partySize   Int
   phoneNumber String? @db.VarChar(32)
-  /// ENTERED: 유효 대기(미취소), CANCELED: 취소
-  status      WaitingStatus @default(ENTERED)
+  /// WAITING: 줄서기 대기 중 · ENTERED: 입장 처리됨 · CANCELED: 취소
+  status      WaitingStatus @default(WAITING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -110,6 +110,7 @@ enum PaymentStatus {
 }
 
 enum WaitingStatus {
+  WAITING
   ENTERED
   CANCELED
 }

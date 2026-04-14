@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum } from 'class-validator';
+import { IsIn } from 'class-validator';
 import { WaitingStatus } from '../../../generated/prisma/client';
-import { OPENAPI_WAITING_STATUS } from '../../swagger/waitings/dto.openapi';
+import { OPENAPI_WAITING_STATUS_PATCH } from '../../swagger/waitings/dto.openapi';
 
 export class UpdateWaitingStatusDto {
   @ApiProperty({
-    ...OPENAPI_WAITING_STATUS,
-    description: '처리 결과에 맞는 대기 상태',
+    ...OPENAPI_WAITING_STATUS_PATCH,
+    description: '입장 처리(ENTERED) 또는 취소(CANCELED)',
   })
-  @IsEnum(WaitingStatus)
+  @IsIn([WaitingStatus.ENTERED, WaitingStatus.CANCELED])
   status!: WaitingStatus;
 }
