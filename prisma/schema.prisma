@@ -34,11 +34,14 @@ model Menu {
   price       Int
   description String? @db.Text
   imageUrl    String? @db.VarChar(512)
+  /// soft delete
+  deleted     Boolean  @default(false)
 
   store      Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
   @@index([storeId])
+  @@index([storeId, deleted])
 }
 
 model Order {
