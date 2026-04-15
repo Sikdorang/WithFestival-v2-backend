@@ -46,6 +46,7 @@ jobs:
             podman run -d \
               --name my-app \
               --restart=always \
+              --network my-network \
               -p 3000:3000 \
               --env-file ~/WithFestival-v2-backend/.env \
               my-app
