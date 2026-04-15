@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
@@ -19,6 +20,7 @@ import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiMenuCreateDocs,
   ApiMenuDeleteDocs,
+  ApiMenuListDocs,
   ApiMenuPatchDocs,
   ApiMenusControllerDocs,
 } from '../swagger/menus/menus.swagger';
@@ -33,6 +35,12 @@ const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 @Controller('menus')
 export class MenusController {
   constructor(private readonly menusService: MenusService) {}
+
+  @Get()
+  @ApiMenuListDocs()
+  list(@CurrentStoreId() storeId: number) {
+    return this.menusService.listActiveByStore(storeId);
+  }
 
   @Post()
   @ApiMenuCreateDocs()
