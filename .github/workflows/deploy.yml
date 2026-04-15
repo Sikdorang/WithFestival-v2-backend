@@ -1,61 +1,66 @@
 name: Deploy to EC2
 
 on:
-  push:
-    branches:
-      - main
+push:
+branches:
+- main
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+deploy:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+```
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
 
-      # 1️⃣ Docker build
-      - name: Build Docker Image
-        run: docker build -t my-app .
+  # 1️⃣ Docker build (Containerfile 사용)
+  - name: Build Docker Image
+    run: docker build -f Containerfile -t my-app .
 
-      # 2️⃣ 이미지 파일로 export
-      - name: Save Image
-        run: docker save my-app | gzip > my-app.tar.gz
+  # 2️⃣ 이미지 파일로 export
+  - name: Save Image
+    run: docker save my-app | gzip > my-app.tar.gz
 
-      # 3️⃣ EC2로 파일 전송
-      - name: Copy Image to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "my-app.tar.gz"
-          target: "~/"
+  # 3️⃣ EC2로 파일 전송
+  - name: Copy Image to EC2
+    uses: appleboy/scp-action@v0.1.7
+    with:
+      host: ${{ secrets.EC2_HOST }}
+      username: ${{ secrets.EC2_USER }}
+      key: ${{ secrets.EC2_SSH_KEY }}
+      source: "my-app.tar.gz"
+      target: "~/"
 
-      # 4️⃣ EC2에서 실행
-      - name: Deploy on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~
+  # 4️⃣ EC2에서 실행
+  - name: Deploy on EC2
+    uses: appleboy/ssh-action@v1.0.3
+    with:
+      host: ${{ secrets.EC2_HOST }}
+      username: ${{ secrets.EC2_USER }}
+      key: ${{ secrets.EC2_SSH_KEY }}
+      script: |
+        cd ~
 
-            # 기존 컨테이너 정리
-            podman stop my-app || true
-            podman rm my-app || true
+        # 기존 컨테이너 정리
+        podman stop my-app || true
+        podman rm my-app || true
 
-            # 기존 이미지 제거 (선택)
-            podman rmi my-app || true
+        # 기존 이미지 제거
+        podman rmi my-app || true
 
-            # 이미지 로드
-            gunzip -f my-app.tar.gz
-            podman load < my-app.tar
+        # 기존 파일 정리
+        rm -f my-app.tar
 
-            # 컨테이너 실행
-            podman run -d \
-              --name my-app \
-              --restart=always \
-              -p 3000:3000 \
-              --env-file ~/WithFestival-v2-backend/.env \
-              my-app
+        # 이미지 로드
+        gunzip -f my-app.tar.gz
+        podman load < my-app.tar
+
+        # 컨테이너 실행
+        podman run -d \
+          --name my-app \
+          --restart=always \
+          -p 3000:3000 \
+          --env-file ~/WithFestival-v2-backend/.env \
+          my-app
+```
