@@ -9,7 +9,6 @@ jobs:
 deploy:
 runs-on: ubuntu-latest
 
-```
 steps:
   - name: Checkout
     uses: actions/checkout@v4
@@ -63,4 +62,3 @@ steps:
           -p 3000:3000 \
           --env-file ~/WithFestival-v2-backend/.env \
           my-app
-```
