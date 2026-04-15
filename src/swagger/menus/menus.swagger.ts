@@ -24,15 +24,31 @@ const MENU_MULTIPART_FIELDS: MultipartField[] = [
     schema: {
       type: 'string',
       format: 'binary',
-      description: 'jpeg, png, webp, gif · 최대 10MB',
+      description:
+        '선택. 없으면 `imageUrl`은 null입니다. jpeg, png, webp, gif · 최대 10MB',
     },
   },
   { key: 'name', schema: { type: 'string', example: '떡볶이' } },
-  { key: 'price', schema: { type: 'integer', example: 4500 } },
-  { key: 'description', schema: { type: 'string', example: '순한맛' } },
+  {
+    key: 'price',
+    schema: {
+      type: 'integer',
+      example: 4500,
+      default: 0,
+      description: '선택. 생략 시 0',
+    },
+  },
+  {
+    key: 'description',
+    schema: {
+      type: 'string',
+      example: '순한맛',
+      description: '선택',
+    },
+  },
 ];
 
-const MENU_REQUIRED_KEYS = ['image', 'name', 'price'] as const;
+const MENU_REQUIRED_KEYS = ['name'] as const;
 
 function buildMenuMultipartSchema() {
   const properties: Record<string, Record<string, unknown>> = {};
@@ -110,7 +126,7 @@ const MENU_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
       summary: '메뉴 등록',
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어 구분은 JWT payload의 `sub`(store PK)이며, 별도 `storeId` 필드는 없습니다.\n\n' +
-        'multipart: `image`(파일), `name`, `price`, 선택 `description`. 이미지는 S3 업로드 후 URL을 DB `imageUrl`에 저장합니다.',
+        'multipart: **`name`만 필수.** `image`, `price`, `description`은 선택입니다. `price`를 생략하면 **0**입니다. 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.',
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody(MENU_CREATE_BODY),
@@ -120,6 +136,21 @@ const MENU_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
 
 export const ApiMenuCreateDocs = () =>
   composeMethodGroups(MENU_POST_DECORATOR_GROUPS);
+
+const MENU_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '메뉴 목록',
+      description:
+        '**JWT 필수.** `sub`(store PK)에 해당하는 스토어의 메뉴만 조회합니다. **`deleted === false`** 인 활성 메뉴만 반환합니다(`id` 오름차순).',
+    }),
+    ApiOkResponse({ description: 'Menu 배열' }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+  ],
+];
+
+export const ApiMenuListDocs = () =>
+  composeMethodGroups(MENU_LIST_DECORATOR_GROUPS);
 
 const MENU_PATCH_DECORATOR_GROUPS: DecoratorArg[][] = [
   [

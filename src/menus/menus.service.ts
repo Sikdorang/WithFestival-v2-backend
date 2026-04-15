@@ -16,27 +16,34 @@ export class MenusService {
     private readonly s3: S3UploadService,
   ) {}
 
+  /** `deleted === false` 인 메뉴만, id 오름차순 */
+  listActiveByStore(storeId: number) {
+    return this.prisma.menu.findMany({
+      where: { storeId, deleted: false },
+      orderBy: { id: 'asc' },
+    });
+  }
+
   async createWithImage(
     storeId: number,
     file: Express.Multer.File | undefined,
     dto: CreateMenuDto,
   ) {
-    if (!file?.buffer?.length) {
-      throw new BadRequestException('Image file (field name: image) is required');
+    let imageUrl: string | null = null;
+    if (file?.buffer?.length) {
+      imageUrl = await this.s3.uploadMenuImage(
+        storeId,
+        file.buffer,
+        file.mimetype,
+      );
     }
-
-    const imageUrl = await this.s3.uploadMenuImage(
-      storeId,
-      file.buffer,
-      file.mimetype,
-    );
 
     return this.prisma.menu.create({
       data: {
         storeId,
         name: dto.name,
-        price: dto.price,
-        description: dto.description ?? null,
+        price: dto.price ?? 0,
+        description: dto.description?.length ? dto.description : null,
         imageUrl,
       },
     });
