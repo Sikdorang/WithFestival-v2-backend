@@ -47,10 +47,12 @@ model Menu {
 model Order {
   id         Int @id @default(autoincrement())
   storeId    Int
+  /// 테이블(좌석) 식별자 — URL `tableId`와 동일하게 저장
+  tableId    Int
 
   totalPrice Int
-  /// 주문 처리 상태 (완료 / 취소)
-  status OrderStatus
+  /// RECEIVED: 접수됨 · COMPLETED: 처리 완료 · CANCELED: 취소
+  status OrderStatus @default(RECEIVED)
 
   /// 결제 상태 (기존 `paymentCheck Boolean` 대신 enum으로 통일)
   paymentStatus PaymentStatus @default(PENDING)
@@ -64,6 +66,7 @@ model Order {
   items OrderItem[]
 
   @@index([storeId])
+  @@index([storeId, tableId])
 }
 
 model OrderItem {
@@ -99,6 +102,7 @@ model Waiting {
 }
 
 enum OrderStatus {
+  RECEIVED
   COMPLETED
   CANCELED
 }
