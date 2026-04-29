@@ -13,6 +13,8 @@ const STORE_PATCH_DEFS = [
   { route: 'account-number', summary: '계좌번호 수정' },
   { route: 'notice', summary: '공지 수정' },
   { route: 'event', summary: '이벤트 문구 수정' },
+  { route: 'reservation-enabled', summary: '예약 기능 활성화 여부 수정' },
+  { route: 'missions-enabled', summary: '미션 기능 활성화 여부 수정' },
 ] as const;
 
 const patchSummaryByRoute: Record<string, string> = {};

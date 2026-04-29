@@ -35,7 +35,7 @@ RUN DATABASE_URL="mysql://generate:generate@127.0.0.1:3306/generate" npx prisma 
 COPY scripts/container-entrypoint.sh /usr/local/bin/container-entrypoint.sh
 RUN chmod +x /usr/local/bin/container-entrypoint.sh
 
-EXPOSE 3000
+EXPOSE 4000
 
 ENTRYPOINT ["/usr/local/bin/container-entrypoint.sh"]
 CMD []

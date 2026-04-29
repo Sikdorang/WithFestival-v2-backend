@@ -47,6 +47,7 @@ jobs:
               --name my-app \
               --restart=always \
               --network my-network \
-              -p 3000:3000 \
+              -p 4000:4000 \
               --env-file ~/WithFestival-v2-backend/.env \
+              -e PORT=4000 \
               my-app

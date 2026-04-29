@@ -23,8 +23,9 @@ services:
       context: .
       dockerfile: Containerfile
     ports:
-      - "3000:3000"
+      - "4000:4000"
     environment:
+      PORT: 4000
       DATABASE_URL: mysql://withfestival:withfestival@mysql:3306/withfestival
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
