@@ -45,3 +45,17 @@ export const OPENAPI_UPDATE_STORE_EVENT = {
     maxLength: 500,
   } satisfies ApiPropertyOptions,
 } as const;
+
+export const OPENAPI_UPDATE_STORE_RESERVATION_ENABLED = {
+  reservationEnabled: {
+    example: true,
+    description: '스토어 예약 기능 활성화 여부',
+  } satisfies ApiPropertyOptions,
+} as const;
+
+export const OPENAPI_UPDATE_STORE_MISSIONS_ENABLED = {
+  missionsEnabled: {
+    example: true,
+    description: '스토어 전체 미션 기능 활성화 여부',
+  } satisfies ApiPropertyOptions,
+} as const;

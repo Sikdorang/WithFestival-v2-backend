@@ -9,8 +9,10 @@ import {
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreAccountNumberDto } from './dto/update-store-account-number.dto';
 import { UpdateStoreEventDto } from './dto/update-store-event.dto';
+import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabled.dto';
 import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
+import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
 import { StoresService } from './stores.service';
 
 @ApiStoresControllerDocs()
@@ -62,5 +64,25 @@ export class StoresController {
     @Body() dto: UpdateStoreEventDto,
   ) {
     return this.storesService.updateEvent(storeId, dto);
+  }
+
+  @Patch('reservation-enabled')
+  @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('reservation-enabled')
+  updateReservationEnabled(
+    @CurrentStoreId() storeId: number,
+    @Body() dto: UpdateStoreReservationEnabledDto,
+  ) {
+    return this.storesService.updateReservationEnabled(storeId, dto);
+  }
+
+  @Patch('missions-enabled')
+  @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('missions-enabled')
+  updateMissionsEnabled(
+    @CurrentStoreId() storeId: number,
+    @Body() dto: UpdateStoreMissionsEnabledDto,
+  ) {
+    return this.storesService.updateMissionsEnabled(storeId, dto);
   }
 }
