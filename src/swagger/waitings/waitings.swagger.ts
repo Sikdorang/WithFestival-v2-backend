@@ -67,6 +67,46 @@ const WAITING_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
 export const ApiWaitingsCreateDocs = () =>
   composeMethodGroups(WAITING_POST_DECORATOR_GROUPS);
 
+const WAITING_ACTIVE_COUNT_RESPONSE = {
+  schema: {
+    type: 'object' as const,
+    required: ['count'],
+    properties: {
+      count: {
+        type: 'integer',
+        minimum: 0,
+        example: 3,
+        description:
+          '입장(ENTERED)·취소(CANCELED) 처리되지 않은 대기 팀 수(현재는 WAITING만 해당)',
+      },
+    },
+  },
+};
+
+const WAITING_ACTIVE_COUNT_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '대기 팀 수 조회(고객·공개)',
+      description:
+        '**JWT 없음.** `GET /stores/{storeId}/waitings/active-count`. 해당 스토어에서 **입장 처리(ENTERED) 또는 취소(CANCELED)되지 않은** 대기 건수만 셉니다(줄 서기 **입장 예정** 팀 수). 스토어가 없으면 404.',
+    }),
+    ApiParam({
+      name: 'storeId',
+      type: Number,
+      example: 1,
+      description: '스토어 PK (`Store.id`)',
+    }),
+    ApiOkResponse({
+      description: '{ count }',
+      ...WAITING_ACTIVE_COUNT_RESPONSE,
+    }),
+    ApiNotFoundResponse({ description: '`storeId`에 해당하는 스토어 없음' }),
+  ],
+];
+
+export const ApiWaitingsActiveCountDocs = () =>
+  composeMethodGroups(WAITING_ACTIVE_COUNT_GROUPS);
+
 export const ApiWaitingsStaffControllerDocs = () =>
   composeClass(
     ApiTags(WAITINGS_SWAGGER_TAG),

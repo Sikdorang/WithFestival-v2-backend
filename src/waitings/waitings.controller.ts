@@ -1,7 +1,17 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
+  ApiWaitingsActiveCountDocs,
   ApiWaitingsCreateDocs,
   ApiWaitingsPublicControllerDocs,
   ApiWaitingsListDocs,
@@ -16,6 +26,12 @@ import { WaitingsService } from './waitings.service';
 @Controller('stores')
 export class WaitingsPublicController {
   constructor(private readonly waitingsService: WaitingsService) {}
+
+  @Get(':storeId/waitings/active-count')
+  @ApiWaitingsActiveCountDocs()
+  activeCount(@Param('storeId', ParseIntPipe) storeId: number) {
+    return this.waitingsService.countActiveForStore(storeId);
+  }
 
   /** 대기 등록 — 고객용. `POST /stores/{storeId}/waitings` 리소스 트리. */
   @Post(':storeId/waitings')
