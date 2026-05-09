@@ -22,11 +22,13 @@ import {
   ApiMenuDeleteDocs,
   ApiMenuListDocs,
   ApiMenuPatchDocs,
+  ApiMenuPublicListDocs,
   ApiMenusControllerDocs,
+  ApiMenusPublicControllerDocs,
 } from '../swagger/menus/menus.swagger';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
-import { MenusService } from './menus.service';
+import { MenusService, type MenuPublicRow } from './menus.service';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -88,5 +90,19 @@ export class MenusController {
     @Param('id', ParseIntPipe) menuId: number,
   ) {
     return this.menusService.remove(storeId, menuId);
+  }
+}
+
+@ApiMenusPublicControllerDocs()
+@Controller('stores')
+export class MenusPublicController {
+  constructor(private readonly menusService: MenusService) {}
+
+  @Get(':storeId/menus')
+  @ApiMenuPublicListDocs()
+  listPublic(
+    @Param('storeId', ParseIntPipe) storeId: number,
+  ): Promise<MenuPublicRow[]> {
+    return this.menusService.listPublicByStore(storeId);
   }
 }

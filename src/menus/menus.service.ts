@@ -9,6 +9,15 @@ import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
 import { S3UploadService } from './s3-upload.service';
 
+export type MenuPublicRow = {
+  id: number;
+  storeId: number;
+  name: string;
+  price: number;
+  description: string | null;
+  imageUrl: string | null;
+};
+
 @Injectable()
 export class MenusService {
   constructor(
@@ -21,6 +30,30 @@ export class MenusService {
     return this.prisma.menu.findMany({
       where: { storeId, deleted: false },
       orderBy: { id: 'asc' },
+    });
+  }
+
+  /** 고객용: 스토어 존재 확인 후 활성 메뉴만, 민감 필드 제외 */
+  async listPublicByStore(storeId: number): Promise<MenuPublicRow[]> {
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      select: { id: true },
+    });
+    if (!store) {
+      throw new NotFoundException(`Store ${storeId} not found`);
+    }
+
+    return this.prisma.menu.findMany({
+      where: { storeId, deleted: false },
+      orderBy: { id: 'asc' },
+      select: {
+        id: true,
+        storeId: true,
+        name: true,
+        price: true,
+        description: true,
+        imageUrl: true,
+      },
     });
   }
 
