@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import {
   WaitingsPublicController,
   WaitingsStaffController,
@@ -7,7 +8,7 @@ import {
 import { WaitingsService } from './waitings.service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, NotificationsModule],
   controllers: [WaitingsPublicController, WaitingsStaffController],
   providers: [WaitingsService],
 })

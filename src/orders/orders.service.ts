@@ -8,12 +8,16 @@ import {
   PaymentStatus,
   Prisma,
 } from '../../generated/prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   private async assertOrderInStore(
     storeId: number,
@@ -30,11 +34,15 @@ export class OrdersService {
 
   async setPaymentPaid(storeId: number, orderId: number) {
     await this.assertOrderInStore(storeId, orderId);
-    return this.prisma.order.update({
+    const order = await this.prisma.order.update({
       where: { id: orderId },
       data: { paymentStatus: PaymentStatus.PAID },
       include: { items: true },
     });
+
+    this.notificationsService.emitOrderPaymentPaid(order);
+
+    return order;
   }
 
   async setPaymentFailed(storeId: number, orderId: number) {
@@ -122,7 +130,7 @@ export class OrdersService {
       }),
     );
 
-    return this.prisma.order.create({
+    const order = await this.prisma.order.create({
       data: {
         storeId,
         tableId,
@@ -134,5 +142,9 @@ export class OrdersService {
       },
       include: { items: true },
     });
+
+    this.notificationsService.emitOrderCreated(order);
+
+    return order;
   }
 }
