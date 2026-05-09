@@ -6,6 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { SOCKET_IO_CORS } from '../cors-options';
 import { StoreAccessTokenPayload } from '../auth/auth.service';
 
 type SocketData = {
@@ -20,10 +21,7 @@ type StoreSocket = Socket<
 >;
 
 @WebSocketGateway({
-  cors: {
-    origin: true,
-    credentials: true,
-  },
+  cors: SOCKET_IO_CORS,
 })
 export class NotificationsGateway implements OnGatewayConnection {
   @WebSocketServer()
