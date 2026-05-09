@@ -2,14 +2,12 @@ import 'dotenv/config';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { APP_CORS_OPTIONS } from './cors-options';
 import { setupSwaggerDocument } from './swagger/common/document.setup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
+  app.enableCors(APP_CORS_OPTIONS);
 
   app.useGlobalPipes(
     new ValidationPipe({
