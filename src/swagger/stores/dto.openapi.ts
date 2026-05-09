@@ -60,6 +60,13 @@ export const OPENAPI_UPDATE_STORE_MISSIONS_ENABLED = {
   } satisfies ApiPropertyOptions,
 } as const;
 
+export const OPENAPI_UPDATE_STORE_WAITINGS_ENABLED = {
+  waitingsEnabled: {
+    example: true,
+    description: '스토어 웨이팅(줄서기) 기능 활성화 여부',
+  } satisfies ApiPropertyOptions,
+} as const;
+
 /** `GET /stores/:storeId/info` 응답 스키마 (`authCode` 제외) */
 export const OPENAPI_STORE_PUBLIC_INFO = {
   id: {
@@ -97,6 +104,10 @@ export const OPENAPI_STORE_PUBLIC_INFO = {
     example: false,
     description: '미션 기능 사용 여부(프론트 UI 노출용)',
   } satisfies ApiPropertyOptions,
+  waitingsEnabled: {
+    example: true,
+    description: '웨이팅(줄서기) 기능 사용 여부(프론트 UI 노출용)',
+  } satisfies ApiPropertyOptions,
   createdAt: {
     example: '2026-05-10T12:00:00.000Z',
     description: '스토어 생성 시각(ISO 8601)',
@@ -114,6 +125,7 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
     'event',
     'reservationEnabled',
     'missionsEnabled',
+    'waitingsEnabled',
     'createdAt',
   ],
   properties: {
@@ -150,6 +162,11 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
       type: 'boolean',
       example: false,
       description: '미션 기능 사용 여부',
+    },
+    waitingsEnabled: {
+      type: 'boolean',
+      example: true,
+      description: '웨이팅(줄서기) 기능 사용 여부',
     },
     createdAt: {
       type: 'string',

@@ -8,6 +8,7 @@ import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabled.dto';
 import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
+import { UpdateStoreWaitingsEnabledDto } from './dto/update-store-waitings-enabled.dto';
 
 /** 고객·프론트용 스토어 공개 정보 (`authCode` 등 비밀은 제외) */
 export type StorePublicInfo = {
@@ -18,6 +19,7 @@ export type StorePublicInfo = {
   event: string | null;
   reservationEnabled: boolean;
   missionsEnabled: boolean;
+  waitingsEnabled: boolean;
   createdAt: Date;
 };
 
@@ -36,6 +38,7 @@ export class StoresService {
         event: true,
         reservationEnabled: true,
         missionsEnabled: true,
+        waitingsEnabled: true,
         createdAt: true,
       },
     });
@@ -54,6 +57,7 @@ export class StoresService {
         event: dto.event,
         reservationEnabled: false,
         missionsEnabled: false,
+        waitingsEnabled: false,
         authCode: dto.authCode,
       },
     });
@@ -86,6 +90,12 @@ export class StoresService {
   updateMissionsEnabled(id: number, dto: UpdateStoreMissionsEnabledDto) {
     return this.updateStoreOrThrow(id, {
       missionsEnabled: dto.missionsEnabled,
+    });
+  }
+
+  updateWaitingsEnabled(id: number, dto: UpdateStoreWaitingsEnabledDto) {
+    return this.updateStoreOrThrow(id, {
+      waitingsEnabled: dto.waitingsEnabled,
     });
   }
 

@@ -104,6 +104,17 @@ export class OrdersService {
     });
   }
 
+  /**
+   * JWT 스토어 기준 전체 주문(결제·처리 상태 무관), 최신순, 품목 포함.
+   */
+  listAllByStore(storeId: number) {
+    return this.prisma.order.findMany({
+      where: { storeId },
+      orderBy: { createdAt: 'desc' },
+      include: { items: true },
+    });
+  }
+
   async createForStore(storeId: number, tableId: number, dto: CreateOrderDto) {
     const menuIds = [...new Set(dto.items.map((i) => i.menuId))];
     const menus = await this.prisma.menu.findMany({
