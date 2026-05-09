@@ -23,6 +23,29 @@ export class WaitingsService {
     });
   }
 
+  /**
+   * 입장(ENTERED)·취소(CANCELED) 처리되지 않은 대기 팀 수(고객용 공개).
+   * `listActiveForStore`와 동일한 필터.
+   */
+  async countActiveForStore(storeId: number): Promise<{ count: number }> {
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      select: { id: true },
+    });
+    if (!store) {
+      throw new NotFoundException('Store not found for this storeId');
+    }
+
+    const count = await this.prisma.waiting.count({
+      where: {
+        storeId,
+        status: { notIn: [WaitingStatus.ENTERED, WaitingStatus.CANCELED] },
+      },
+    });
+
+    return { count };
+  }
+
   async updateStatus(
     storeId: number,
     waitingId: number,
