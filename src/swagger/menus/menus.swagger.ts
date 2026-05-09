@@ -13,7 +13,12 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { SWAGGER_JWT_REF } from '../common/constants';
-import { type DecoratorArg, composeClass, composeMethodGroups } from '../common/compose';
+import {
+  type DecoratorArg,
+  composeClass,
+  composeMethodGroups,
+} from '../common/compose';
+import { OPENAPI_MENU_PUBLIC_LIST_RESPONSE_SCHEMA } from './dto.openapi';
 import { MENUS_SWAGGER_TAG } from './tag.constants';
 
 type MultipartField = { key: string; schema: Record<string, unknown> };
@@ -119,6 +124,34 @@ export const ApiMenusControllerDocs = () =>
     ApiTags(MENUS_SWAGGER_TAG),
     ApiBearerAuth(SWAGGER_JWT_REF),
   );
+
+/** 고객용 메뉴 목록 — JWT 없음, `stores` 경로 */
+export const ApiMenusPublicControllerDocs = () =>
+  composeClass(ApiTags(MENUS_SWAGGER_TAG));
+
+const MENU_PUBLIC_LIST_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '메뉴 목록(고객)',
+      description:
+        '**JWT 불필요.** 경로 `storeId`(스토어·부스 PK)에 해당하는 **활성 메뉴**(`deleted === false`)만 `id` 오름차순으로 반환합니다. 스토어가 없으면 404입니다.',
+    }),
+    ApiParam({
+      name: 'storeId',
+      type: Number,
+      example: 1,
+      description: '스토어 PK (`Store.id`)',
+    }),
+    ApiOkResponse({
+      description: '메뉴 배열',
+      schema: OPENAPI_MENU_PUBLIC_LIST_RESPONSE_SCHEMA,
+    }),
+    ApiNotFoundResponse({ description: '해당 `storeId` 스토어 없음' }),
+  ],
+];
+
+export const ApiMenuPublicListDocs = () =>
+  composeMethodGroups(MENU_PUBLIC_LIST_GROUPS);
 
 const MENU_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
   [
