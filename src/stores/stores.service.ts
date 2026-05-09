@@ -13,6 +13,23 @@ import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation
 export class StoresService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getPublicInfo(storeId: number) {
+    const row = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      select: {
+        id: true,
+        name: true,
+        accountNumber: true,
+        notice: true,
+        event: true,
+      },
+    });
+    if (!row) {
+      throw new NotFoundException(`Store ${storeId} not found`);
+    }
+    return row;
+  }
+
   create(dto: CreateStoreDto) {
     return this.prisma.store.create({
       data: {

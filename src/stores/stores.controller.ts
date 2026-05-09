@@ -1,8 +1,18 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiStoreCreateDocs,
+  ApiStorePublicInfoDocs,
   ApiStoresControllerDocs,
   ApiStoreJwtPatch,
 } from '../swagger/stores/stores.swagger';
@@ -24,6 +34,12 @@ export class StoresController {
   @ApiStoreCreateDocs()
   create(@Body() dto: CreateStoreDto) {
     return this.storesService.create(dto);
+  }
+
+  @Get(':storeId/info')
+  @ApiStorePublicInfoDocs()
+  getPublicInfo(@Param('storeId', ParseIntPipe) storeId: number) {
+    return this.storesService.getPublicInfo(storeId);
   }
 
   @Patch('name')

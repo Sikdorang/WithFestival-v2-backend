@@ -59,3 +59,66 @@ export const OPENAPI_UPDATE_STORE_MISSIONS_ENABLED = {
     description: '스토어 전체 미션 기능 활성화 여부',
   } satisfies ApiPropertyOptions,
 } as const;
+
+/** `GET /stores/:storeId/info` 응답 스키마 */
+export const OPENAPI_STORE_PUBLIC_INFO = {
+  id: {
+    example: 1,
+    description: '스토어(부스) PK',
+  } satisfies ApiPropertyOptions,
+  name: {
+    example: '3학년 주점',
+    description: '부스(가게) 이름',
+    maxLength: 200,
+  } satisfies ApiPropertyOptions,
+  accountNumber: {
+    example: '110-123-456789',
+    description: '입금 계좌 안내용 문자열',
+    maxLength: 100,
+    nullable: true,
+  } satisfies ApiPropertyOptions,
+  notice: {
+    example: '오늘의 추천 메뉴는 …',
+    description: '공지',
+    maxLength: 2000,
+    nullable: true,
+  } satisfies ApiPropertyOptions,
+  event: {
+    example: '첫 주문 10% 할인',
+    description: '이벤트 문구',
+    maxLength: 500,
+    nullable: true,
+  } satisfies ApiPropertyOptions,
+} as const;
+
+/** Swagger `ApiOkResponse`용 JSON 스키마 (순환 참조 방지) */
+export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
+  type: 'object',
+  required: ['id', 'name', 'accountNumber', 'notice', 'event'],
+  properties: {
+    id: { type: 'integer', example: 1, description: '스토어(부스) PK' },
+    name: {
+      type: 'string',
+      example: '3학년 주점',
+      description: '부스(가게) 이름',
+    },
+    accountNumber: {
+      type: 'string',
+      nullable: true,
+      example: '110-123-456789',
+      description: '입금 계좌 안내',
+    },
+    notice: {
+      type: 'string',
+      nullable: true,
+      example: '오늘의 추천 메뉴는 …',
+      description: '공지',
+    },
+    event: {
+      type: 'string',
+      nullable: true,
+      example: '첫 주문 10% 할인',
+      description: '이벤트 문구',
+    },
+  },
+};

@@ -1,4 +1,11 @@
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SWAGGER_JWT_REF } from '../common/constants';
 import {
   type DecoratorArg,
@@ -6,6 +13,7 @@ import {
   composeMethod,
   composeMethodGroups,
 } from '../common/compose';
+import { OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA } from './dto.openapi';
 import { STORES_SWAGGER_TAG } from './tag.constants';
 
 const STORE_PATCH_DEFS = [
@@ -30,6 +38,23 @@ export const ApiStoresControllerDocs = () =>
 export const ApiStoreCreateDocs = () =>
   composeMethod(
     ApiOperation({ summary: '스토어(부스) 생성', description: 'JWT 불필요' }),
+  );
+
+export const ApiStorePublicInfoDocs = () =>
+  composeMethod(
+    ApiOperation({
+      summary: '스토어(부스) 공개 정보 조회',
+      description:
+        '**JWT 불필요.** 부스 이름(`name`), 계좌(`accountNumber`), 공지(`notice`), 이벤트 문구(`event`) 등 고객 화면용 필드만 반환합니다. `authCode` 등 관리용 값은 포함하지 않습니다.',
+    }),
+    ApiParam({
+      name: 'storeId',
+      type: Number,
+      example: 1,
+      description: '스토어 PK (`Store.id`)',
+    }),
+    ApiOkResponse({ schema: OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA }),
+    ApiNotFoundResponse({ description: '해당 `storeId` 스토어 없음' }),
   );
 
 /** `routeKey`는 URL 세그먼트 (`name`, `account-number`, …) */
