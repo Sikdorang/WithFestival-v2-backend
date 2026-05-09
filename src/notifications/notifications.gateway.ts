@@ -8,19 +8,6 @@ import {
 import { Server, Socket } from 'socket.io';
 import { StoreAccessTokenPayload } from '../auth/auth.service';
 
-function parseCorsOrigins(): string[] {
-  const raw = process.env.CORS_ORIGIN;
-  if (!raw) {
-    return [];
-  }
-
-  return raw
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter((origin) => origin.length > 0);
-}
-const corsOrigins = parseCorsOrigins();
-
 type SocketData = {
   boothId?: number;
 };
@@ -34,7 +21,7 @@ type StoreSocket = Socket<
 
 @WebSocketGateway({
   cors: {
-    origin: corsOrigins.length > 0 ? corsOrigins : true,
+    origin: true,
     credentials: true,
   },
 })
