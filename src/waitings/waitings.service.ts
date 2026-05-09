@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { WaitingStatus } from '../../generated/prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWaitingDto } from './dto/create-waiting.dto';
 import { UpdateWaitingStatusDto } from './dto/update-waiting-status.dto';
 
 @Injectable()
 export class WaitingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   /** ENTERED·CANCELED가 아닌 건만 = WAITING(줄 대기 중) */
   async listActiveForStore(storeId: number) {
@@ -44,7 +48,7 @@ export class WaitingsService {
       throw new NotFoundException('Store not found for this storeId');
     }
 
-    return this.prisma.waiting.create({
+    const waiting = await this.prisma.waiting.create({
       data: {
         storeId: store.id,
         name: dto.name,
@@ -53,5 +57,9 @@ export class WaitingsService {
         status: WaitingStatus.WAITING,
       },
     });
+
+    this.notificationsService.emitWaitingCreated(waiting);
+
+    return waiting;
   }
 }
