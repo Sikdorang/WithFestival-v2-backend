@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiStoreCreateDocs,
+  ApiStoreMeInfoDocs,
   ApiStorePublicInfoDocs,
   ApiStoresControllerDocs,
   ApiStoreJwtPatch,
@@ -23,6 +24,7 @@ import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabl
 import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
+import { UpdateStoreWaitingsEnabledDto } from './dto/update-store-waitings-enabled.dto';
 import { StoresService, type StorePublicInfo } from './stores.service';
 
 @ApiStoresControllerDocs()
@@ -34,6 +36,14 @@ export class StoresController {
   @ApiStoreCreateDocs()
   create(@Body() dto: CreateStoreDto) {
     return this.storesService.create(dto);
+  }
+
+  /** JWT `sub` 기준 — 반드시 `:storeId/info` 보다 위에 둠 (`me`가 숫자로 파싱되지 않도록) */
+  @Get('me/info')
+  @UseGuards(JwtAuthGuard)
+  @ApiStoreMeInfoDocs()
+  getMyStoreInfo(@CurrentStoreId() storeId: number): Promise<StorePublicInfo> {
+    return this.storesService.getPublicInfo(storeId);
   }
 
   @Get(':storeId/info')
@@ -102,5 +112,15 @@ export class StoresController {
     @Body() dto: UpdateStoreMissionsEnabledDto,
   ) {
     return this.storesService.updateMissionsEnabled(storeId, dto);
+  }
+
+  @Patch('waitings-enabled')
+  @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('waitings-enabled')
+  updateWaitingsEnabled(
+    @CurrentStoreId() storeId: number,
+    @Body() dto: UpdateStoreWaitingsEnabledDto,
+  ) {
+    return this.storesService.updateWaitingsEnabled(storeId, dto);
   }
 }

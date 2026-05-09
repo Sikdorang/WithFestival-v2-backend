@@ -17,6 +17,7 @@ model Store {
   event         String? @db.VarChar(500)
   reservationEnabled Boolean @default(false)
   missionsEnabled    Boolean @default(false)
+  waitingsEnabled    Boolean @default(false)
   /// 기존 number 역할
   authCode      String @db.VarChar(64)
 

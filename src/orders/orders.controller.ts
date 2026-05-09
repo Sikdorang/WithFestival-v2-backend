@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiOrderCreateDocs,
+  ApiOrderListAllDocs,
   ApiOrderListDocs,
   ApiOrderPaymentFailedDocs,
   ApiOrderPaymentPaidDocs,
@@ -61,6 +62,12 @@ export class OrdersStaffController {
     @Query('paid', ParseBoolPipe) paid: boolean,
   ) {
     return this.ordersService.listByStore(storeId, paid);
+  }
+
+  @Get('all')
+  @ApiOrderListAllDocs()
+  listAll(@CurrentStoreId() storeId: number) {
+    return this.ordersService.listAllByStore(storeId);
   }
 
   @Patch(':id/payment/paid')

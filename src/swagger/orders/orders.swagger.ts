@@ -128,6 +128,22 @@ const ORDER_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
 export const ApiOrderListDocs = () =>
   composeMethodGroups(ORDER_LIST_DECORATOR_GROUPS);
 
+const ORDER_LIST_ALL_DECORATOR_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '주문 내역 전체 목록',
+      description:
+        '**JWT 필수.** `GET /orders/all`. JWT **`sub`(store PK)** 스토어의 **모든 주문**을 반환합니다. `paymentStatus`·`status` 필터 없음. `createdAt` **내림차순**, 각 주문에 **`items`** 포함.\n\n' +
+        '특정 구간만 보고 싶다면 기존 `GET /orders?paid=true|false`를 사용하세요.',
+    }),
+    ApiOkResponse({ description: 'Order[] (각 항목에 items 포함)' }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+  ],
+];
+
+export const ApiOrderListAllDocs = () =>
+  composeMethodGroups(ORDER_LIST_ALL_DECORATOR_GROUPS);
+
 const ORDER_ID_PARAM = {
   name: 'id',
   type: Number,
