@@ -23,7 +23,7 @@ import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabl
 import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
-import { StoresService } from './stores.service';
+import { StoresService, type StorePublicInfo } from './stores.service';
 
 @ApiStoresControllerDocs()
 @Controller('stores')
@@ -38,7 +38,9 @@ export class StoresController {
 
   @Get(':storeId/info')
   @ApiStorePublicInfoDocs()
-  getPublicInfo(@Param('storeId', ParseIntPipe) storeId: number) {
+  getPublicInfo(
+    @Param('storeId', ParseIntPipe) storeId: number,
+  ): Promise<StorePublicInfo> {
     return this.storesService.getPublicInfo(storeId);
   }
 

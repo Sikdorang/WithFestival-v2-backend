@@ -42,11 +42,11 @@ export const ApiStoreCreateDocs = () =>
 
 export const ApiStorePublicInfoDocs = () =>
   composeMethod(
-    ApiOperation({
-      summary: '스토어(부스) 공개 정보 조회',
-      description:
-        '**JWT 불필요.** 부스 이름(`name`), 계좌(`accountNumber`), 공지(`notice`), 이벤트 문구(`event`) 등 고객 화면용 필드만 반환합니다. `authCode` 등 관리용 값은 포함하지 않습니다.',
-    }),
+      ApiOperation({
+        summary: '스토어(부스) 공개 정보 조회',
+        description:
+          '**JWT 불필요.** `Store`에 있는 고객·프론트에 필요한 필드를 모두 반환합니다: `name`, `accountNumber`, `notice`, `event`, `reservationEnabled`, `missionsEnabled`, `createdAt`. **로그인용 `authCode`는 보안상 포함하지 않습니다.**',
+      }),
     ApiParam({
       name: 'storeId',
       type: Number,

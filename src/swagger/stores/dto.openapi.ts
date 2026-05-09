@@ -60,7 +60,7 @@ export const OPENAPI_UPDATE_STORE_MISSIONS_ENABLED = {
   } satisfies ApiPropertyOptions,
 } as const;
 
-/** `GET /stores/:storeId/info` 응답 스키마 */
+/** `GET /stores/:storeId/info` 응답 스키마 (`authCode` 제외) */
 export const OPENAPI_STORE_PUBLIC_INFO = {
   id: {
     example: 1,
@@ -89,12 +89,33 @@ export const OPENAPI_STORE_PUBLIC_INFO = {
     maxLength: 500,
     nullable: true,
   } satisfies ApiPropertyOptions,
+  reservationEnabled: {
+    example: true,
+    description: '예약 기능 사용 여부(프론트 UI 노출용)',
+  } satisfies ApiPropertyOptions,
+  missionsEnabled: {
+    example: false,
+    description: '미션 기능 사용 여부(프론트 UI 노출용)',
+  } satisfies ApiPropertyOptions,
+  createdAt: {
+    example: '2026-05-10T12:00:00.000Z',
+    description: '스토어 생성 시각(ISO 8601)',
+  } satisfies ApiPropertyOptions,
 } as const;
 
 /** Swagger `ApiOkResponse`용 JSON 스키마 (순환 참조 방지) */
 export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
   type: 'object',
-  required: ['id', 'name', 'accountNumber', 'notice', 'event'],
+  required: [
+    'id',
+    'name',
+    'accountNumber',
+    'notice',
+    'event',
+    'reservationEnabled',
+    'missionsEnabled',
+    'createdAt',
+  ],
   properties: {
     id: { type: 'integer', example: 1, description: '스토어(부스) PK' },
     name: {
@@ -119,6 +140,22 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
       nullable: true,
       example: '첫 주문 10% 할인',
       description: '이벤트 문구',
+    },
+    reservationEnabled: {
+      type: 'boolean',
+      example: true,
+      description: '예약 기능 사용 여부',
+    },
+    missionsEnabled: {
+      type: 'boolean',
+      example: false,
+      description: '미션 기능 사용 여부',
+    },
+    createdAt: {
+      type: 'string',
+      format: 'date-time',
+      example: '2026-05-10T12:00:00.000Z',
+      description: '스토어 생성 시각',
     },
   },
 };

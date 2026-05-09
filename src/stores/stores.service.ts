@@ -9,11 +9,23 @@ import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabled.dto';
 import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
 
+/** 고객·프론트용 스토어 공개 정보 (`authCode` 등 비밀은 제외) */
+export type StorePublicInfo = {
+  id: number;
+  name: string;
+  accountNumber: string | null;
+  notice: string | null;
+  event: string | null;
+  reservationEnabled: boolean;
+  missionsEnabled: boolean;
+  createdAt: Date;
+};
+
 @Injectable()
 export class StoresService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPublicInfo(storeId: number) {
+  async getPublicInfo(storeId: number): Promise<StorePublicInfo> {
     const row = await this.prisma.store.findUnique({
       where: { id: storeId },
       select: {
@@ -22,6 +34,9 @@ export class StoresService {
         accountNumber: true,
         notice: true,
         event: true,
+        reservationEnabled: true,
+        missionsEnabled: true,
+        createdAt: true,
       },
     });
     if (!row) {
