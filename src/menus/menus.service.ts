@@ -14,6 +14,8 @@ export type MenuPublicRow = {
   storeId: number;
   name: string;
   price: number;
+  marginRate: number;
+  isSoldOut: boolean;
   description: string | null;
   imageUrl: string | null;
 };
@@ -51,9 +53,39 @@ export class MenusService {
         storeId: true,
         name: true,
         price: true,
+        marginRate: true,
+        isSoldOut: true,
         description: true,
         imageUrl: true,
       },
+    });
+  }
+
+  /** 활성 메뉴만 품절(`isSoldOut: true`)로 설정 */
+  async markSoldOut(storeId: number, menuId: number) {
+    const existing = await this.prisma.menu.findFirst({
+      where: { id: menuId, storeId, deleted: false },
+    });
+    if (!existing) {
+      throw new NotFoundException('Menu not found for this store');
+    }
+    return this.prisma.menu.update({
+      where: { id: menuId },
+      data: { isSoldOut: true },
+    });
+  }
+
+  /** 활성 메뉴만 판매 재개(`isSoldOut: false`) */
+  async markAvailable(storeId: number, menuId: number) {
+    const existing = await this.prisma.menu.findFirst({
+      where: { id: menuId, storeId, deleted: false },
+    });
+    if (!existing) {
+      throw new NotFoundException('Menu not found for this store');
+    }
+    return this.prisma.menu.update({
+      where: { id: menuId },
+      data: { isSoldOut: false },
     });
   }
 
@@ -76,6 +108,7 @@ export class MenusService {
         storeId,
         name: dto.name,
         price: dto.price ?? 0,
+        marginRate: dto.marginRate ?? 0,
         description: dto.description?.length ? dto.description : null,
         imageUrl,
       },
@@ -98,12 +131,14 @@ export class MenusService {
     const data: {
       name?: string;
       price?: number;
+      marginRate?: number;
       description?: string | null;
       imageUrl?: string;
     } = {};
 
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.price !== undefined) data.price = dto.price;
+    if (dto.marginRate !== undefined) data.marginRate = dto.marginRate;
     if (dto.description !== undefined) {
       data.description = dto.description.length ? dto.description : null;
     }
@@ -118,7 +153,7 @@ export class MenusService {
 
     if (Object.keys(data).length === 0) {
       throw new BadRequestException(
-        'Provide at least one of: name, price, description, or image',
+        'Provide at least one of: name, price, marginRate, description, or image',
       );
     }
 

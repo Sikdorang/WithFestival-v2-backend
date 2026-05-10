@@ -3,6 +3,8 @@ export type OrderCreatedItemEvent = {
   menuId: number;
   price: number;
   quantity: number;
+  /** 조인된 메뉴명이 있으면 포함 */
+  menuName?: string;
 };
 
 export type OrderCreatedEvent = {

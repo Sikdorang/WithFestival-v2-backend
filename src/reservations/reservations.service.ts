@@ -28,10 +28,22 @@ export class ReservationsService {
   }
 
   async listForStore(storeId: number) {
-    return this.prisma.reservationSlot.findMany({
+    const rows = await this.prisma.reservationSlot.findMany({
       where: { storeId },
       orderBy: [{ startTime: 'asc' }, { id: 'asc' }],
+      include: {
+        _count: {
+          select: {
+            reservations: { where: { deleted: false } },
+          },
+        },
+      },
     });
+
+    return rows.map(({ _count, ...slot }) => ({
+      ...slot,
+      reservedTeamCount: _count.reservations,
+    }));
   }
 
   async listForPublicStore(storeId: number) {

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Param,
   ParseBoolPipe,
@@ -14,42 +13,32 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
-  ApiOrderCreateDocs,
+  ApiOrderCreatePublicDocs,
   ApiOrderListAllDocs,
   ApiOrderListDocs,
   ApiOrderPaymentFailedDocs,
   ApiOrderPaymentPaidDocs,
-  ApiOrdersControllerDocs,
+  ApiOrdersPublicCreateControllerDocs,
+  ApiOrdersStaffControllerDocs,
   ApiOrderStatusCanceledDocs,
   ApiOrderStatusCompletedDocs,
 } from '../swagger/orders/orders.swagger';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreatePublicOrderDto } from './dto/create-public-order.dto';
 import { OrdersService } from './orders.service';
 
-@ApiOrdersControllerDocs()
-@UseGuards(JwtAuthGuard)
-@Controller('stores/:storeId/tables/:tableId')
-export class OrdersController {
+@ApiOrdersPublicCreateControllerDocs()
+@Controller()
+export class OrdersPublicCreateController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post('orders')
-  @ApiOrderCreateDocs()
-  create(
-    @Param('storeId', ParseIntPipe) storeId: number,
-    @Param('tableId', ParseIntPipe) tableId: number,
-    @CurrentStoreId() jwtStoreId: number,
-    @Body() dto: CreateOrderDto,
-  ) {
-    if (storeId !== jwtStoreId) {
-      throw new ForbiddenException(
-        'URL storeId must match the authenticated store (JWT sub)',
-      );
-    }
-    return this.ordersService.createForStore(storeId, tableId, dto);
+  @ApiOrderCreatePublicDocs()
+  create(@Body() dto: CreatePublicOrderDto) {
+    return this.ordersService.createFromPublicDto(dto);
   }
 }
 
-@ApiOrdersControllerDocs()
+@ApiOrdersStaffControllerDocs()
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersStaffController {

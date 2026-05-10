@@ -17,6 +17,7 @@ import {
   composeClass,
   composeMethodGroups,
 } from '../common/compose';
+import { OPENAPI_RESERVATION_SLOT_LIST_RESPONSE_SCHEMA } from './dto.openapi';
 import { RESERVATIONS_SWAGGER_TAG } from './tag.constants';
 
 const RESERVATION_SLOT_CREATE_BODY = {
@@ -85,7 +86,7 @@ const RESERVATION_SLOT_PUBLIC_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '예약 가능 시간대 목록(고객)',
       description:
-        'JWT 없음. `GET /stores/{storeId}/reservation-slots`. 해당 스토어에 등록된 예약 가능 시간대를 반환합니다.',
+        'JWT 없음. `GET /stores/{storeId}/reservation-slots`. 해당 스토어에 등록된 예약 가능 시간대를 반환합니다. 각 항목에 **`reservedTeamCount`**: 해당 슬롯에서 아직 취소(soft delete)되지 않은 예약 팀 수가 포함됩니다.',
     }),
     ApiParam({
       name: 'storeId',
@@ -93,7 +94,10 @@ const RESERVATION_SLOT_PUBLIC_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
       example: 1,
       description: '스토어 PK (`Store.id`)',
     }),
-    ApiOkResponse({ description: 'ReservationSlot 배열' }),
+    ApiOkResponse({
+      description: 'ReservationSlot + reservedTeamCount 배열',
+      schema: OPENAPI_RESERVATION_SLOT_LIST_RESPONSE_SCHEMA,
+    }),
     ApiNotFoundResponse({ description: '`storeId`에 해당하는 스토어 없음' }),
   ],
 ];
@@ -157,9 +161,12 @@ const RESERVATION_SLOT_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '예약 가능 시간대 목록(부스)',
       description:
-        '**JWT 필수.** 로그인한 스토어(`JWT sub`)에 등록된 예약 가능 시간대를 조회합니다.',
+        '**JWT 필수.** 로그인한 스토어(`JWT sub`)에 등록된 예약 가능 시간대를 조회합니다. 각 항목에 **`reservedTeamCount`**: 해당 슬롯에서 `deleted === false`인 예약 팀 수가 포함됩니다.',
     }),
-    ApiOkResponse({ description: 'ReservationSlot 배열' }),
+    ApiOkResponse({
+      description: 'ReservationSlot + reservedTeamCount 배열',
+      schema: OPENAPI_RESERVATION_SLOT_LIST_RESPONSE_SCHEMA,
+    }),
     ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
   ],
 ];

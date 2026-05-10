@@ -18,7 +18,11 @@ import {
   composeClass,
   composeMethodGroups,
 } from '../common/compose';
-import { OPENAPI_MENU_PUBLIC_LIST_RESPONSE_SCHEMA } from './dto.openapi';
+import {
+  OPENAPI_MENU_ENTITY_RESPONSE_SCHEMA,
+  OPENAPI_MENU_PUBLIC_LIST_RESPONSE_SCHEMA,
+  OPENAPI_MENU_STAFF_LIST_RESPONSE_SCHEMA,
+} from './dto.openapi';
 import { MENUS_SWAGGER_TAG } from './tag.constants';
 
 type MultipartField = { key: string; schema: Record<string, unknown> };
@@ -41,6 +45,17 @@ const MENU_MULTIPART_FIELDS: MultipartField[] = [
       example: 4500,
       default: 0,
       description: '선택. 생략 시 0',
+    },
+  },
+  {
+    key: 'marginRate',
+    schema: {
+      type: 'integer',
+      example: 15,
+      default: 0,
+      minimum: 0,
+      maximum: 100,
+      description: '선택. 마진율(%). 생략 시 0',
     },
   },
   {
@@ -96,6 +111,16 @@ const MENU_PATCH_MULTIPART_FIELDS: MultipartField[] = [
     },
   },
   {
+    key: 'marginRate',
+    schema: {
+      type: 'integer',
+      example: 15,
+      minimum: 0,
+      maximum: 100,
+      description: '선택. 보낸 경우에만 마진율(%)을 덮어씁니다.',
+    },
+  },
+  {
     key: 'description',
     schema: {
       type: 'string',
@@ -134,7 +159,7 @@ const MENU_PUBLIC_LIST_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '메뉴 목록(고객)',
       description:
-        '**JWT 불필요.** 경로 `storeId`(스토어·부스 PK)에 해당하는 **활성 메뉴**(`deleted === false`)만 `id` 오름차순으로 반환합니다. 스토어가 없으면 404입니다.',
+        '**JWT 불필요.** 경로 `storeId`(스토어·부스 PK)에 해당하는 **활성 메뉴**(`deleted === false`)만 `id` 오름차순으로 반환합니다. `marginRate`는 정수 **%**, `isSoldOut`이 **품절** 여부입니다. 스토어가 없으면 404입니다.',
     }),
     ApiParam({
       name: 'storeId',
@@ -159,11 +184,14 @@ const MENU_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
       summary: '메뉴 등록',
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어 구분은 JWT payload의 `sub`(store PK)이며, 별도 `storeId` 필드는 없습니다.\n\n' +
-        'multipart: **`name`만 필수.** `image`, `price`, `description`은 선택입니다. `price`를 생략하면 **0**입니다. 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.',
+        'multipart: **`name`만 필수.** `image`, `price`, `marginRate`, `description`은 선택입니다. `price`·`marginRate` 생략 시 **0**입니다. `marginRate`는 정수 **%**(0~100). 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.',
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody(MENU_CREATE_BODY),
-    ApiCreatedResponse({ description: '생성된 Menu' }),
+    ApiCreatedResponse({
+      description: '생성된 Menu (`isSoldOut` 기본 false)',
+      schema: OPENAPI_MENU_ENTITY_RESPONSE_SCHEMA,
+    }),
   ],
 ];
 
@@ -175,9 +203,12 @@ const MENU_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '메뉴 목록',
       description:
-        '**JWT 필수.** `sub`(store PK)에 해당하는 스토어의 메뉴만 조회합니다. **`deleted === false`** 인 활성 메뉴만 반환합니다(`id` 오름차순).',
+        '**JWT 필수.** `sub`(store PK)에 해당하는 스토어의 메뉴만 조회합니다. **`deleted === false`** 인 활성 메뉴만 반환합니다(`id` 오름차순). `marginRate`는 정수 **%**, `isSoldOut`은 품절 여부입니다.',
     }),
-    ApiOkResponse({ description: 'Menu 배열' }),
+    ApiOkResponse({
+      description: '활성 Menu 배열',
+      schema: OPENAPI_MENU_STAFF_LIST_RESPONSE_SCHEMA,
+    }),
     ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
   ],
 ];
@@ -192,7 +223,7 @@ const MENU_PATCH_DECORATOR_GROUPS: DecoratorArg[][] = [
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어는 JWT payload의 `sub`(store PK)로 결정됩니다.\n\n' +
         '`PATCH /menus/:id` — `:id`는 메뉴 PK입니다. 해당 메뉴가 **같은 스토어**에 속하지 않으면 404입니다.\n\n' +
-        '`multipart/form-data`: `image`, `name`, `price`, `description`은 **전부 선택**이며, **요청에 실제로 포함된 항목만** DB에 반영합니다. 필드·이미지를 하나도 보내지 않으면 400입니다.',
+        '`multipart/form-data`: `image`, `name`, `price`, `marginRate`, `description`은 **전부 선택**이며, **요청에 실제로 포함된 항목만** DB에 반영합니다. 필드·이미지를 하나도 보내지 않으면 400입니다.',
     }),
     ApiParam({
       name: 'id',
@@ -202,7 +233,10 @@ const MENU_PATCH_DECORATOR_GROUPS: DecoratorArg[][] = [
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody(MENU_PATCH_BODY),
-    ApiOkResponse({ description: '수정된 Menu 레코드' }),
+    ApiOkResponse({
+      description: '수정된 Menu 레코드',
+      schema: OPENAPI_MENU_ENTITY_RESPONSE_SCHEMA,
+    }),
     ApiBadRequestResponse({
       description:
         '본문·파일 모두 비어 있음(반영할 필드 없음), 또는 유효성 검사 실패',
@@ -243,3 +277,59 @@ const MENU_DELETE_DECORATOR_GROUPS: DecoratorArg[][] = [
 
 export const ApiMenuDeleteDocs = () =>
   composeMethodGroups(MENU_DELETE_DECORATOR_GROUPS);
+
+const MENU_SOLD_OUT_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '메뉴 품절 처리',
+      description:
+        '**JWT 필수.** 해당 스토어의 활성 메뉴(`deleted === false`)에 대해 `isSoldOut`을 **true**로 설정합니다. 본문 없음. 이미 품절이면 그대로 true로 덮어씁니다(멱등).',
+    }),
+    ApiParam({
+      name: 'id',
+      type: Number,
+      example: 1,
+      description: '메뉴 PK (`Menu.id`)',
+    }),
+    ApiOkResponse({
+      description: '갱신된 Menu',
+      schema: OPENAPI_MENU_ENTITY_RESPONSE_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+    ApiNotFoundResponse({
+      description:
+        '해당 `id`의 활성 메뉴가 없음(없는 id·다른 스토어·이미 soft delete)',
+    }),
+  ],
+];
+
+export const ApiMenuMarkSoldOutDocs = () =>
+  composeMethodGroups(MENU_SOLD_OUT_GROUPS);
+
+const MENU_AVAILABLE_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '메뉴 판매 재개(품절 해제)',
+      description:
+        '**JWT 필수.** 해당 스토어의 활성 메뉴에 대해 `isSoldOut`을 **false**로 되돌립니다. 멱등.',
+    }),
+    ApiParam({
+      name: 'id',
+      type: Number,
+      example: 1,
+      description: '메뉴 PK (`Menu.id`)',
+    }),
+    ApiOkResponse({
+      description: '갱신된 Menu',
+      schema: OPENAPI_MENU_ENTITY_RESPONSE_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+    ApiNotFoundResponse({
+      description:
+        '해당 `id`의 활성 메뉴가 없음(없는 id·다른 스토어·이미 soft delete)',
+    }),
+  ],
+];
+
+export const ApiMenuMarkAvailableDocs = () =>
+  composeMethodGroups(MENU_AVAILABLE_GROUPS);

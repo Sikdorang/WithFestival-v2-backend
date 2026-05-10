@@ -10,7 +10,16 @@ import {
 } from '../../generated/prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreatePublicOrderDto } from './dto/create-public-order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
+
+const ORDER_DETAIL_INCLUDE = {
+  items: {
+    include: {
+      menu: { select: { id: true, name: true } },
+    },
+  },
+} satisfies Prisma.OrderInclude;
 
 @Injectable()
 export class OrdersService {
@@ -37,7 +46,7 @@ export class OrdersService {
     const order = await this.prisma.order.update({
       where: { id: orderId },
       data: { paymentStatus: PaymentStatus.PAID },
-      include: { items: true },
+      include: ORDER_DETAIL_INCLUDE,
     });
 
     this.notificationsService.emitOrderPaymentPaid(order);
@@ -50,7 +59,7 @@ export class OrdersService {
     return this.prisma.order.update({
       where: { id: orderId },
       data: { paymentStatus: PaymentStatus.FAILED },
-      include: { items: true },
+      include: ORDER_DETAIL_INCLUDE,
     });
   }
 
@@ -59,7 +68,7 @@ export class OrdersService {
     return this.prisma.order.update({
       where: { id: orderId },
       data: { status: OrderStatus.CANCELED },
-      include: { items: true },
+      include: ORDER_DETAIL_INCLUDE,
     });
   }
 
@@ -68,7 +77,7 @@ export class OrdersService {
     return this.prisma.order.update({
       where: { id: orderId },
       data: { status: OrderStatus.COMPLETED },
-      include: { items: true },
+      include: ORDER_DETAIL_INCLUDE,
     });
   }
 
@@ -78,8 +87,6 @@ export class OrdersService {
    */
   listByStore(storeId: number, paid: boolean) {
     const orderBy = { createdAt: 'desc' as const };
-    const include = { items: true as const };
-
     if (paid) {
       return this.prisma.order.findMany({
         where: {
@@ -90,7 +97,7 @@ export class OrdersService {
           },
         },
         orderBy,
-        include,
+        include: ORDER_DETAIL_INCLUDE,
       });
     }
 
@@ -100,7 +107,7 @@ export class OrdersService {
         paymentStatus: { not: PaymentStatus.PAID },
       },
       orderBy,
-      include,
+      include: ORDER_DETAIL_INCLUDE,
     });
   }
 
@@ -111,8 +118,29 @@ export class OrdersService {
     return this.prisma.order.findMany({
       where: { storeId },
       orderBy: { createdAt: 'desc' },
-      include: { items: true },
+      include: ORDER_DETAIL_INCLUDE,
     });
+  }
+
+  /** JWT 없이 본문의 `storeId`·`boothId`·`tableId`로 주문 (부스 PK는 현재 `Store.id` 한 종류) */
+  async createFromPublicDto(dto: CreatePublicOrderDto) {
+    if (dto.storeId !== dto.boothId) {
+      throw new BadRequestException(
+        'storeId와 boothId는 같은 값이어야 합니다(현재 가게·부스는 동일 PK `Store.id`).',
+      );
+    }
+
+    const store = await this.prisma.store.findUnique({
+      where: { id: dto.storeId },
+      select: { id: true },
+    });
+    if (!store) {
+      throw new NotFoundException(`Store ${dto.storeId} not found`);
+    }
+
+    const { storeId, boothId, tableId, ...rest } = dto;
+    void boothId;
+    return this.createForStore(storeId, tableId, rest);
   }
 
   async createForStore(storeId: number, tableId: number, dto: CreateOrderDto) {
@@ -151,7 +179,7 @@ export class OrdersService {
         paymentStatus: 'PENDING',
         items: { create: createLines },
       },
-      include: { items: true },
+      include: ORDER_DETAIL_INCLUDE,
     });
 
     this.notificationsService.emitOrderCreated(order);
