@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
+import { CouponsModule } from './coupons/coupons.module';
 import { MenusModule } from './menus/menus.module';
 import { MissionsModule } from './missions/missions.module';
 import { OrdersModule } from './orders/orders.module';
@@ -13,6 +14,7 @@ import { WaitingsModule } from './waitings/waitings.module';
   imports: [
     PrismaModule,
     AuthModule,
+    CouponsModule,
     StoresModule,
     MenusModule,
     MissionsModule,

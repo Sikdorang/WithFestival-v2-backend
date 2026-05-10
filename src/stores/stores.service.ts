@@ -8,6 +8,7 @@ import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabled.dto';
 import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
+import { UpdateStoreReservationReminderSmsDto } from './dto/update-store-reservation-reminder-sms.dto';
 import { UpdateStoreWaitingsEnabledDto } from './dto/update-store-waitings-enabled.dto';
 
 /** 고객·프론트용 스토어 공개 정보 (`authCode` 등 비밀은 제외) */
@@ -18,6 +19,8 @@ export type StorePublicInfo = {
   notice: string | null;
   event: string | null;
   reservationEnabled: boolean;
+  reservationRemindSms5MinBefore: boolean;
+  reservationRemindSms10MinBefore: boolean;
   missionsEnabled: boolean;
   waitingsEnabled: boolean;
   createdAt: Date;
@@ -37,6 +40,8 @@ export class StoresService {
         notice: true,
         event: true,
         reservationEnabled: true,
+        reservationRemindSms5MinBefore: true,
+        reservationRemindSms10MinBefore: true,
         missionsEnabled: true,
         waitingsEnabled: true,
         createdAt: true,
@@ -96,6 +101,16 @@ export class StoresService {
   updateWaitingsEnabled(id: number, dto: UpdateStoreWaitingsEnabledDto) {
     return this.updateStoreOrThrow(id, {
       waitingsEnabled: dto.waitingsEnabled,
+    });
+  }
+
+  updateReservationReminderSms(
+    id: number,
+    dto: UpdateStoreReservationReminderSmsDto,
+  ) {
+    return this.updateStoreOrThrow(id, {
+      reservationRemindSms5MinBefore: dto.remind5MinBefore,
+      reservationRemindSms10MinBefore: dto.remind10MinBefore,
     });
   }
 

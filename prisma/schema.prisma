@@ -16,6 +16,10 @@ model Store {
   notice        String? @db.Text
   event         String? @db.VarChar(500)
   reservationEnabled Boolean @default(false)
+  /// 예약 시작 예정 시각 기준 5분 전 SMS(또는 발송 파이프) 안내 사용
+  reservationRemindSms5MinBefore  Boolean @default(false)
+  /// 예약 시작 예정 시각 기준 10분 전 SMS 안내 사용
+  reservationRemindSms10MinBefore Boolean @default(false)
   missionsEnabled    Boolean @default(false)
   waitingsEnabled    Boolean @default(false)
   /// 기존 number 역할
@@ -28,8 +32,27 @@ model Store {
   orders   Order[]
   reservationSlots ReservationSlot[]
   missions Mission[]
+  coupons Coupon[]
 
   @@unique([authCode])
+}
+
+model Coupon {
+  id            Int     @id @default(autoincrement())
+  storeId       Int
+  /// 부스별 유일 번호(trim 후 저장·조회)
+  code          String  @db.VarChar(64)
+  /// 할인 금액(원), 0 이상
+  discountPrice Int
+  /// 사용 완료 여부(본 검증 API에서는 갱신하지 않음)
+  used          Boolean @default(false)
+  /// 쿠폰을 받은 사람(이름·연락처 등 자유 텍스트, 없으면 null)
+  holder        String? @db.VarChar(200)
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, code])
+  @@index([storeId])
 }
 
 model Mission {

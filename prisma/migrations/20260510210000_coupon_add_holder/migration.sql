@@ -1,0 +1,2 @@
+ALTER TABLE `Coupon`
+  ADD COLUMN `holder` VARCHAR(200) NULL;

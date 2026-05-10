@@ -53,6 +53,20 @@ export const OPENAPI_UPDATE_STORE_RESERVATION_ENABLED = {
   } satisfies ApiPropertyOptions,
 } as const;
 
+/** 예약 시작 예정 시각 기준 SMS(등) 리마인더 — 5분·10분 전 각각 on/off */
+export const OPENAPI_UPDATE_STORE_RESERVATION_REMINDER_SMS = {
+  remind5MinBefore: {
+    example: true,
+    description:
+      '예약 슬롯 시작 시각 **5분 전**에 고객에게 안내 메시지를 보낼지 여부',
+  } satisfies ApiPropertyOptions,
+  remind10MinBefore: {
+    example: false,
+    description:
+      '예약 슬롯 시작 시각 **10분 전**에 고객에게 안내 메시지를 보낼지 여부',
+  } satisfies ApiPropertyOptions,
+} as const;
+
 export const OPENAPI_UPDATE_STORE_MISSIONS_ENABLED = {
   missionsEnabled: {
     example: true,
@@ -108,6 +122,15 @@ export const OPENAPI_STORE_PUBLIC_INFO = {
     example: true,
     description: '웨이팅(줄서기) 기능 사용 여부(프론트 UI 노출용)',
   } satisfies ApiPropertyOptions,
+  reservationRemindSms5MinBefore: {
+    example: true,
+    description:
+      '예약 시작 5분 전 고객 안내 발송 사용 여부(실제 발송은 배치·스케줄러에서 처리)',
+  } satisfies ApiPropertyOptions,
+  reservationRemindSms10MinBefore: {
+    example: false,
+    description: '예약 시작 10분 전 고객 안내 발송 사용 여부',
+  } satisfies ApiPropertyOptions,
   createdAt: {
     example: '2026-05-10T12:00:00.000Z',
     description: '스토어 생성 시각(ISO 8601)',
@@ -126,6 +149,8 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
     'reservationEnabled',
     'missionsEnabled',
     'waitingsEnabled',
+    'reservationRemindSms5MinBefore',
+    'reservationRemindSms10MinBefore',
     'createdAt',
   ],
   properties: {
@@ -167,6 +192,16 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
       type: 'boolean',
       example: true,
       description: '웨이팅(줄서기) 기능 사용 여부',
+    },
+    reservationRemindSms5MinBefore: {
+      type: 'boolean',
+      example: true,
+      description: '예약 시작 5분 전 안내 발송 on/off',
+    },
+    reservationRemindSms10MinBefore: {
+      type: 'boolean',
+      example: false,
+      description: '예약 시작 10분 전 안내 발송 on/off',
     },
     createdAt: {
       type: 'string',
