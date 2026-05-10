@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BoothNotificationEventName, BOOTH_NOTIFICATION_EVENTS } from './notifications.events';
 import { NotificationsGateway } from './notifications.gateway';
-import { OrderCreatedEvent } from './dto/order-created-event.dto';
+import {
+  type OrderCreatedEvent,
+  type OrderCreatedItemEvent,
+} from './dto/order-created-event.dto';
 import { WaitingCreatedEvent } from './dto/waiting-created-event.dto';
 
 type OrderWithItems = {
@@ -18,6 +21,7 @@ type OrderWithItems = {
     menuId: number;
     price: number;
     quantity: number;
+    menu?: { id: number; name: string };
   }>;
 };
 
@@ -117,12 +121,18 @@ export class NotificationsService {
       status: order.status,
       paymentStatus: order.paymentStatus,
       createdAt: order.createdAt.toISOString(),
-      items: order.items.map((item) => ({
-        id: item.id,
-        menuId: item.menuId,
-        price: item.price,
-        quantity: item.quantity,
-      })),
+      items: order.items.map((item): OrderCreatedItemEvent => {
+        const row: OrderCreatedItemEvent = {
+          id: item.id,
+          menuId: item.menuId,
+          price: item.price,
+          quantity: item.quantity,
+        };
+        if (item.menu?.name != null) {
+          row.menuName = item.menu.name;
+        }
+        return row;
+      }),
     };
   }
 }

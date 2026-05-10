@@ -5,6 +5,7 @@ import { MissionsModule } from './missions/missions.module';
 import { OrdersModule } from './orders/orders.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ReservationsModule } from './reservations/reservations.module';
+import { SmsModule } from './sms/sms.module';
 import { StoresModule } from './stores/stores.module';
 import { WaitingsModule } from './waitings/waitings.module';
 
@@ -18,6 +19,7 @@ import { WaitingsModule } from './waitings/waitings.module';
     OrdersModule,
     ReservationsModule,
     WaitingsModule,
+    SmsModule,
   ],
 })
 export class AppModule {}

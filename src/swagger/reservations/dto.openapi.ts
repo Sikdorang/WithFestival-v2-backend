@@ -42,3 +42,39 @@ export const OPENAPI_CREATE_RESERVATION = {
     maximum: 500,
   },
 } satisfies Record<string, ApiPropertyOptions>;
+
+/** 시간대 목록 API 응답 항목 (`reservedTeamCount`: 삭제되지 않은 예약 건수 = 팀 수) */
+export const OPENAPI_RESERVATION_SLOT_LIST_ITEM_SCHEMA = {
+  type: 'object',
+  required: [
+    'id',
+    'storeId',
+    'startTime',
+    'endTime',
+    'availableTables',
+    'createdAt',
+    'updatedAt',
+    'reservedTeamCount',
+  ],
+  properties: {
+    id: { type: 'integer', example: 1 },
+    storeId: { type: 'integer', example: 1 },
+    startTime: { type: 'string', example: '10:00' },
+    endTime: { type: 'string', example: '11:30' },
+    availableTables: { type: 'integer', example: 8, minimum: 0 },
+    createdAt: { type: 'string', format: 'date-time' },
+    updatedAt: { type: 'string', format: 'date-time' },
+    reservedTeamCount: {
+      type: 'integer',
+      minimum: 0,
+      example: 3,
+      description:
+        '해당 시간대에 예약된 팀 수(`deleted === false`인 Reservation 건수)',
+    },
+  },
+};
+
+export const OPENAPI_RESERVATION_SLOT_LIST_RESPONSE_SCHEMA = {
+  type: 'array',
+  items: OPENAPI_RESERVATION_SLOT_LIST_ITEM_SCHEMA,
+};

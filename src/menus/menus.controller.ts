@@ -21,6 +21,8 @@ import {
   ApiMenuCreateDocs,
   ApiMenuDeleteDocs,
   ApiMenuListDocs,
+  ApiMenuMarkAvailableDocs,
+  ApiMenuMarkSoldOutDocs,
   ApiMenuPatchDocs,
   ApiMenuPublicListDocs,
   ApiMenusControllerDocs,
@@ -80,6 +82,26 @@ export class MenusController {
       image,
       dto,
     );
+  }
+
+  @Post(':id/sold-out')
+  @HttpCode(HttpStatus.OK)
+  @ApiMenuMarkSoldOutDocs()
+  markSoldOut(
+    @CurrentStoreId() storeId: number,
+    @Param('id', ParseIntPipe) menuId: number,
+  ) {
+    return this.menusService.markSoldOut(storeId, menuId);
+  }
+
+  @Post(':id/available')
+  @HttpCode(HttpStatus.OK)
+  @ApiMenuMarkAvailableDocs()
+  markAvailable(
+    @CurrentStoreId() storeId: number,
+    @Param('id', ParseIntPipe) menuId: number,
+  ) {
+    return this.menusService.markAvailable(storeId, menuId);
   }
 
   @Delete(':id')

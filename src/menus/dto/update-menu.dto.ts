@@ -21,6 +21,12 @@ function optionalPrice({ value }: { value: unknown }) {
   return Number.isNaN(n) ? undefined : n;
 }
 
+function optionalMarginRate({ value }: { value: unknown }) {
+  if (value === '' || value === null || value === undefined) return undefined;
+  const n = Number(value);
+  return Number.isNaN(n) ? undefined : n;
+}
+
 export class UpdateMenuDto {
   @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.name })
   @IsOptional()
@@ -36,6 +42,14 @@ export class UpdateMenuDto {
   @Min(0)
   @Max(2_000_000_000)
   price?: number;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.marginRate })
+  @IsOptional()
+  @Transform(optionalMarginRate)
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  marginRate?: number;
 
   @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.description })
   @IsOptional()
