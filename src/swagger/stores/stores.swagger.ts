@@ -23,6 +23,10 @@ const STORE_PATCH_DEFS = [
   { route: 'notice', summary: '공지 수정' },
   { route: 'event', summary: '이벤트 문구 수정' },
   { route: 'reservation-enabled', summary: '예약 기능 활성화 여부 수정' },
+  {
+    route: 'reservation-reminder-sms',
+    summary: '예약 리마인더(5분·10분 전) 발송 여부 수정',
+  },
   { route: 'missions-enabled', summary: '미션 기능 활성화 여부 수정' },
   { route: 'waitings-enabled', summary: '웨이팅 기능 활성화 여부 수정' },
 ] as const;
@@ -47,7 +51,7 @@ export const ApiStorePublicInfoDocs = () =>
       ApiOperation({
         summary: '스토어(부스) 공개 정보 조회',
         description:
-          '**JWT 불필요.** `Store`에 있는 고객·프론트에 필요한 필드를 모두 반환합니다: `name`, `accountNumber`, `notice`, `event`, `reservationEnabled`, `missionsEnabled`, `waitingsEnabled`, `createdAt`. **로그인용 `authCode`는 보안상 포함하지 않습니다.**',
+          '**JWT 불필요.** `Store`에 있는 고객·프론트에 필요한 필드를 모두 반환합니다: `name`, `accountNumber`, `notice`, `event`, `reservationEnabled`, `reservationRemindSms5MinBefore`, `reservationRemindSms10MinBefore`, `missionsEnabled`, `waitingsEnabled`, `createdAt`. **로그인용 `authCode`는 보안상 포함하지 않습니다.**',
       }),
     ApiParam({
       name: 'storeId',

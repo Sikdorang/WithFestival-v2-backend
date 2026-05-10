@@ -24,6 +24,7 @@ import { UpdateStoreMissionsEnabledDto } from './dto/update-store-missions-enabl
 import { UpdateStoreNameDto } from './dto/update-store-name.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
 import { UpdateStoreReservationEnabledDto } from './dto/update-store-reservation-enabled.dto';
+import { UpdateStoreReservationReminderSmsDto } from './dto/update-store-reservation-reminder-sms.dto';
 import { UpdateStoreWaitingsEnabledDto } from './dto/update-store-waitings-enabled.dto';
 import { StoresService, type StorePublicInfo } from './stores.service';
 
@@ -102,6 +103,16 @@ export class StoresController {
     @Body() dto: UpdateStoreReservationEnabledDto,
   ) {
     return this.storesService.updateReservationEnabled(storeId, dto);
+  }
+
+  @Patch('reservation-reminder-sms')
+  @UseGuards(JwtAuthGuard)
+  @ApiStoreJwtPatch('reservation-reminder-sms')
+  updateReservationReminderSms(
+    @CurrentStoreId() storeId: number,
+    @Body() dto: UpdateStoreReservationReminderSmsDto,
+  ) {
+    return this.storesService.updateReservationReminderSms(storeId, dto);
   }
 
   @Patch('missions-enabled')
