@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   ApiReservationSlotsCreateDocs,
   ApiReservationSlotsDeleteDocs,
+  ApiReservationSlotsListAtReservationPathDocs,
   ApiReservationSlotsListDocs,
   ApiReservationSlotsUpdateDocs,
   ApiReservationSlotReservationsListDocs,
@@ -35,7 +36,9 @@ import { ReservationsService } from './reservations.service';
 export class ReservationsPublicController {
   constructor(private readonly reservationsService: ReservationsService) {}
 
+  /** `/reservation-slots`·`/reservation/slots` 동일 응답 — 슬롯마다 `reservedTeamCount`(삭제되지 않은 예약 팀 수) */
   @Get(':storeId/reservation-slots')
+  @Get(':storeId/reservation/slots')
   @ApiReservationSlotsPublicListDocs()
   listByStore(@Param('storeId', ParseIntPipe) storeId: number) {
     return this.reservationsService.listForPublicStore(storeId);
@@ -48,6 +51,19 @@ export class ReservationsPublicController {
     @Body() dto: CreateReservationDto,
   ) {
     return this.reservationsService.createReservation(storeId, dto);
+  }
+}
+
+@ApiReservationSlotsStaffControllerDocs()
+@UseGuards(JwtAuthGuard)
+@Controller('reservation')
+export class ReservationsStaffReservationPathController {
+  constructor(private readonly reservationsService: ReservationsService) {}
+
+  @Get('slots')
+  @ApiReservationSlotsListAtReservationPathDocs()
+  list(@CurrentStoreId() storeId: number) {
+    return this.reservationsService.listForStore(storeId);
   }
 }
 

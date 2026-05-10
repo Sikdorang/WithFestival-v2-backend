@@ -86,7 +86,7 @@ const RESERVATION_SLOT_PUBLIC_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '예약 가능 시간대 목록(고객)',
       description:
-        'JWT 없음. `GET /stores/{storeId}/reservation-slots`. 해당 스토어에 등록된 예약 가능 시간대를 반환합니다. 각 항목에 **`reservedTeamCount`**: 해당 슬롯에서 아직 취소(soft delete)되지 않은 예약 팀 수가 포함됩니다.',
+        'JWT 없음. `GET /stores/{storeId}/reservation-slots` 또는 **`GET /stores/{storeId}/reservation/slots`** — 동일 응답. 해당 스토어에 등록된 예약 가능 시간대를 반환합니다. 각 항목에 **`reservedTeamCount`**: 해당 슬롯에서 아직 취소(`deleted=false`)되지 않은 예약 **팀 수**가 포함됩니다.',
     }),
     ApiParam({
       name: 'storeId',
@@ -156,23 +156,42 @@ const RESERVATION_SLOT_CREATE_DECORATOR_GROUPS: DecoratorArg[][] = [
 export const ApiReservationSlotsCreateDocs = () =>
   composeMethodGroups(RESERVATION_SLOT_CREATE_DECORATOR_GROUPS);
 
+const OPENAPI_SLOT_LIST_RESPONSE_DECORATORS: DecoratorArg[] = [
+  ApiOkResponse({
+    description:
+      '`ReservationSlot` 필드 + `reservedTeamCount`(삭제되지 않은 예약 팀 수) 배열',
+    schema: OPENAPI_RESERVATION_SLOT_LIST_RESPONSE_SCHEMA,
+  }),
+  ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+];
+
 const RESERVATION_SLOT_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
   [
     ApiOperation({
-      summary: '예약 가능 시간대 목록(부스)',
+      summary: '예약 가능 시간대 목록 — /reservation-slots',
       description:
-        '**JWT 필수.** 로그인한 스토어(`JWT sub`)에 등록된 예약 가능 시간대를 조회합니다. 각 항목에 **`reservedTeamCount`**: 해당 슬롯에서 `deleted === false`인 예약 팀 수가 포함됩니다.',
+        '**JWT 필수.** `GET /reservation-slots`. 같은 데이터는 **`GET /reservation/slots`** 에서도 조회합니다. 각 항목에 **`reservedTeamCount`**: 해당 슬롯에서 `deleted === false`인 예약 **팀 수**입니다.',
     }),
-    ApiOkResponse({
-      description: 'ReservationSlot + reservedTeamCount 배열',
-      schema: OPENAPI_RESERVATION_SLOT_LIST_RESPONSE_SCHEMA,
-    }),
-    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+    ...OPENAPI_SLOT_LIST_RESPONSE_DECORATORS,
   ],
 ];
 
 export const ApiReservationSlotsListDocs = () =>
   composeMethodGroups(RESERVATION_SLOT_LIST_DECORATOR_GROUPS);
+
+const RESERVATION_SLOT_LIST_AT_RESERVATION_PATH_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '예약 가능 시간대 목록 — /reservation/slots',
+      description:
+        '**JWT 필수.** `GET /reservation/slots`. **`GET /reservation-slots` 와 동일**한 응답입니다. 각 항목 **`reservedTeamCount`**: 해당 슬롯의 `deleted === false` 예약 **팀 수**입니다.',
+    }),
+    ...OPENAPI_SLOT_LIST_RESPONSE_DECORATORS,
+  ],
+];
+
+export const ApiReservationSlotsListAtReservationPathDocs = () =>
+  composeMethodGroups(RESERVATION_SLOT_LIST_AT_RESERVATION_PATH_GROUPS);
 
 const RESERVATION_SLOT_UPDATE_DECORATOR_GROUPS: DecoratorArg[][] = [
   [

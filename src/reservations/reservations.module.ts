@@ -4,6 +4,7 @@ import {
   ReservationsBookingsStaffController,
   ReservationsPublicController,
   ReservationsStaffController,
+  ReservationsStaffReservationPathController,
 } from './reservations.controller';
 import { ReservationsService } from './reservations.service';
 
@@ -11,6 +12,7 @@ import { ReservationsService } from './reservations.service';
   imports: [AuthModule],
   controllers: [
     ReservationsPublicController,
+    ReservationsStaffReservationPathController,
     ReservationsStaffController,
     ReservationsBookingsStaffController,
   ],
