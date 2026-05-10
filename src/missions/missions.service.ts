@@ -26,6 +26,24 @@ export class MissionsService {
     });
   }
 
+  /** 고객용: 스토어 검증 + missions on 시 활성 미션만 */
+  async listPublicActiveForStore(storeId: number) {
+    const store = await this.prisma.store.findUnique({
+      where: { id: storeId },
+      select: { id: true, missionsEnabled: true },
+    });
+    if (!store) {
+      throw new NotFoundException(`Store ${storeId} not found`);
+    }
+    if (!store.missionsEnabled) {
+      return [];
+    }
+    return this.prisma.mission.findMany({
+      where: { storeId, isActive: true },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
+  }
+
   async getOneForStore(storeId: number, missionId: number) {
     const row = await this.prisma.mission.findFirst({
       where: { id: missionId, storeId },
