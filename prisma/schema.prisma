@@ -180,6 +180,18 @@ model Reservation {
   @@index([reservationSlotId, deleted])
 }
 
+/// 축제 단위 행사 정보(전역 메타데이터)
+model Festival {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(200)
+  /// 개최 장소
+  location  String   @db.VarChar(500)
+  /// 기간 문자열(예: "2026년 5월 10일 ~ 12일")
+  period    String   @db.VarChar(200)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum OrderStatus {
   RECEIVED
   COMPLETED

@@ -9,6 +9,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import type { Mission } from '../../generated/prisma/client';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
@@ -19,11 +20,27 @@ import {
   ApiMissionUpdateDocs,
   ApiMissionsControllerDocs,
   ApiMissionsListDocs,
+  ApiMissionsPublicControllerDocs,
+  ApiMissionsPublicListDocs,
 } from '../swagger/missions/missions.swagger';
 import { CreateMissionDto } from './dto/create-mission.dto';
 import { UpdateMissionActiveDto } from './dto/update-mission-active.dto';
 import { UpdateMissionDto } from './dto/update-mission.dto';
 import { MissionsService } from './missions.service';
+
+@ApiMissionsPublicControllerDocs()
+@Controller('stores')
+export class MissionsPublicController {
+  constructor(private readonly missionsService: MissionsService) {}
+
+  @Get(':storeId/missions')
+  @ApiMissionsPublicListDocs()
+  listPublic(
+    @Param('storeId', ParseIntPipe) storeId: number,
+  ): Promise<Mission[]> {
+    return this.missionsService.listPublicActiveForStore(storeId);
+  }
+}
 
 @ApiMissionsControllerDocs()
 @UseGuards(JwtAuthGuard)

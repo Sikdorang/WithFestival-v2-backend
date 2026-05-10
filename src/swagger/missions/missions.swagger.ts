@@ -13,6 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { SWAGGER_JWT_REF } from '../common/constants';
 import { type DecoratorArg, composeClass, composeMethodGroups } from '../common/compose';
+import { OPENAPI_MISSION_PUBLIC_LIST_SCHEMA } from './dto.openapi';
 import { MISSIONS_SWAGGER_TAG } from './tag.constants';
 
 const MISSION_CREATE_BODY = {
@@ -57,6 +58,36 @@ const MISSION_ID_PARAM = {
 
 export const ApiMissionsControllerDocs = () =>
   composeClass(ApiTags(MISSIONS_SWAGGER_TAG), ApiBearerAuth(SWAGGER_JWT_REF));
+
+/** 고객용 `stores` 라우트 — Bearer 없음 */
+export const ApiMissionsPublicControllerDocs = () =>
+  composeClass(ApiTags(MISSIONS_SWAGGER_TAG));
+
+const MISSIONS_PUBLIC_LIST_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '미션 목록(고객)',
+      description:
+        '**JWT 불필요.** `GET /stores/{storeId}/missions`\n\n' +
+        '스토어가 없으면 **404**. `Store.missionsEnabled === false`이면 **빈 배열**입니다.\n\n' +
+        '미션 기능이 켜진 스토어에 대해서만 **`isActive === true`** 인 미션을 `createdAt`·`id` 내림차순으로 반환합니다.',
+    }),
+    ApiParam({
+      name: 'storeId',
+      type: Number,
+      example: 1,
+      description: '스토어(부스) PK',
+    }),
+    ApiOkResponse({
+      description: '활성 Mission 배열',
+      schema: OPENAPI_MISSION_PUBLIC_LIST_SCHEMA,
+    }),
+    ApiNotFoundResponse({ description: '`storeId` 스토어 없음' }),
+  ],
+];
+
+export const ApiMissionsPublicListDocs = () =>
+  composeMethodGroups(MISSIONS_PUBLIC_LIST_GROUPS);
 
 const MISSION_CREATE_GROUPS: DecoratorArg[][] = [
   [
