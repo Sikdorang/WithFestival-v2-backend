@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { SOCKET_IO_CORS } from '../cors-options';
 import { StoreAccessTokenPayload } from '../auth/auth.service';
+import type { StoreSocketEventName } from './notifications.events';
 
 type SocketData = {
   boothId?: number;
@@ -64,7 +65,7 @@ export class NotificationsGateway implements OnGatewayConnection {
     await client.join(this.boothRoom(boothId));
   }
 
-  emitToStore(storeId: number, event: string, payload: unknown): void {
+  emitToStore(storeId: number, event: StoreSocketEventName, payload: unknown): void {
     this.server.to(this.boothRoom(storeId)).emit(event, payload);
   }
 

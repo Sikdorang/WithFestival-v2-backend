@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import {
   ReservationsBookingsStaffController,
   ReservationsPublicController,
@@ -9,7 +10,7 @@ import {
 import { ReservationsService } from './reservations.service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, NotificationsModule],
   controllers: [
     ReservationsPublicController,
     ReservationsStaffReservationPathController,

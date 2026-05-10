@@ -57,10 +57,18 @@ export class WaitingsService {
     if (!row) {
       throw new NotFoundException('Waiting not found for this store');
     }
-    return this.prisma.waiting.update({
+    const updated = await this.prisma.waiting.update({
       where: { id: waitingId },
       data: { status: dto.status },
     });
+
+    if (dto.status === WaitingStatus.CANCELED) {
+      this.notificationsService.emitWaitingCanceled(updated);
+    } else if (dto.status === WaitingStatus.ENTERED) {
+      this.notificationsService.emitWaitingEntered(updated);
+    }
+
+    return updated;
   }
 
   async create(storeId: number, dto: CreateWaitingDto) {

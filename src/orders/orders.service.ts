@@ -65,20 +65,28 @@ export class OrdersService {
 
   async setStatusCanceled(storeId: number, orderId: number) {
     await this.assertOrderInStore(storeId, orderId);
-    return this.prisma.order.update({
+    const order = await this.prisma.order.update({
       where: { id: orderId },
       data: { status: OrderStatus.CANCELED },
       include: ORDER_DETAIL_INCLUDE,
     });
+
+    this.notificationsService.emitOrderStatusCanceled(order);
+
+    return order;
   }
 
   async setStatusCompleted(storeId: number, orderId: number) {
     await this.assertOrderInStore(storeId, orderId);
-    return this.prisma.order.update({
+    const order = await this.prisma.order.update({
       where: { id: orderId },
       data: { status: OrderStatus.COMPLETED },
       include: ORDER_DETAIL_INCLUDE,
     });
+
+    this.notificationsService.emitOrderStatusCompleted(order);
+
+    return order;
   }
 
   /**

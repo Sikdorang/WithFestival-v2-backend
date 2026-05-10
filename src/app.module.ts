@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
+import { SwaggerSocketModule } from './swagger/socket/swagger-socket.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { FestivalsModule } from './festivals/festivals.module';
 import { MenusModule } from './menus/menus.module';
@@ -14,6 +15,7 @@ import { WaitingsModule } from './waitings/waitings.module';
 @Module({
   imports: [
     PrismaModule,
+    SwaggerSocketModule,
     AuthModule,
     CouponsModule,
     FestivalsModule,

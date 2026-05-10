@@ -7,3 +7,8 @@ export type WaitingCreatedEvent = {
   status: string;
   createdAt: string;
 };
+
+/** `waiting.status.canceled` · `waiting.status.entered` */
+export type WaitingStatusChangedPayload = WaitingCreatedEvent & {
+  updatedAt: string;
+};
