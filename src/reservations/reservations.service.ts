@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CreateReservationSlotDto } from './dto/create-reservation-slot.dto';
@@ -6,7 +7,10 @@ import { UpdateReservationSlotDto } from './dto/update-reservation-slot.dto';
 
 @Injectable()
 export class ReservationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async createForStore(storeId: number, dto: CreateReservationSlotDto) {
     const store = await this.prisma.store.findUnique({
@@ -115,7 +119,7 @@ export class ReservationsService {
       );
     }
 
-    return this.prisma.reservation.create({
+    const reservation = await this.prisma.reservation.create({
       data: {
         reservationSlotId: slot.id,
         reserverName: dto.reserverName,
@@ -126,6 +130,10 @@ export class ReservationsService {
         reservationSlot: true,
       },
     });
+
+    this.notificationsService.emitReservationCreated(reservation);
+
+    return reservation;
   }
 
   async listReservationsBySlotForStore(storeId: number, reservationSlotId: number) {
@@ -193,10 +201,14 @@ export class ReservationsService {
       );
     }
 
-    return this.prisma.reservation.update({
+    const updated = await this.prisma.reservation.update({
       where: { id: row.id },
       data: { deleted: true },
       include: { reservationSlot: true },
     });
+
+    this.notificationsService.emitReservationRejected(updated);
+
+    return updated;
   }
 }
