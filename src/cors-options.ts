@@ -1,8 +1,8 @@
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
-/** 모든 Origin(port 포함) 교차 호출 허용. Bearer JWT만 쓰므로 credentials는 꺼 둠(쿠키 없음 → `*` 사용 가능). */
+/** 브라우저 preflight와 인증 헤더 기반 호출을 허용한다. */
 export const APP_CORS_OPTIONS: CorsOptions = {
-  origin: '*',
+  origin: true,
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type',
@@ -12,7 +12,7 @@ export const APP_CORS_OPTIONS: CorsOptions = {
     'X-Requested-With',
   ],
   exposedHeaders: ['Content-Disposition'],
-  credentials: false,
+  credentials: true,
   optionsSuccessStatus: 204,
   maxAge: 86400,
 };

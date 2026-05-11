@@ -133,6 +133,13 @@ export class CouponsService {
     });
   }
 
+  async deleteForStore(storeId: number, couponId: number) {
+    await this.assertCouponOwnedByStore(storeId, couponId);
+    return this.prisma.coupon.delete({
+      where: { id: couponId },
+    });
+  }
+
   private async assertCouponOwnedByStore(
     storeId: number,
     couponId: number,
