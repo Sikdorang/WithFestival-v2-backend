@@ -8,6 +8,13 @@ function trim({ value }: { value: unknown }): unknown {
 }
 
 export class CreateFestivalDto {
+  @ApiProperty(OPENAPI_CREATE_FESTIVAL.university)
+  @Transform(trim)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  university!: string;
+
   @ApiProperty(OPENAPI_CREATE_FESTIVAL.name)
   @Transform(trim)
   @IsString()
@@ -15,17 +22,24 @@ export class CreateFestivalDto {
   @MaxLength(200)
   name!: string;
 
+  @ApiProperty(OPENAPI_CREATE_FESTIVAL.startDate)
+  @Transform(trim)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(32)
+  startDate!: string;
+
+  @ApiProperty(OPENAPI_CREATE_FESTIVAL.endDate)
+  @Transform(trim)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(32)
+  endDate!: string;
+
   @ApiProperty(OPENAPI_CREATE_FESTIVAL.location)
   @Transform(trim)
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)
   location!: string;
-
-  @ApiProperty(OPENAPI_CREATE_FESTIVAL.period)
-  @Transform(trim)
-  @IsString()
-  @IsNotEmpty()
-  @MaxLength(200)
-  period!: string;
 }

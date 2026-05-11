@@ -27,18 +27,28 @@ import { FESTIVALS_SWAGGER_TAG } from './tag.constants';
 const FESTIVAL_CREATE_BODY = {
   schema: {
     type: 'object' as const,
-    required: ['name', 'location', 'period'],
+    required: ['university', 'name', 'startDate', 'endDate', 'location'],
     properties: {
+      university: {
+        type: 'string',
+        example: '한국대학교',
+        maxLength: 200,
+      },
       name: { type: 'string', example: '2026 대학 축제', maxLength: 200 },
+      startDate: {
+        type: 'string',
+        example: '2026-05-10',
+        maxLength: 32,
+      },
+      endDate: {
+        type: 'string',
+        example: '2026-05-12',
+        maxLength: 32,
+      },
       location: {
         type: 'string',
         example: '서울시 ○○대학교 대운동장',
         maxLength: 500,
-      },
-      period: {
-        type: 'string',
-        example: '2026.05.10 ~ 05.12',
-        maxLength: 200,
       },
     },
   },
@@ -48,16 +58,26 @@ const FESTIVAL_PATCH_BODY = {
   schema: {
     type: 'object' as const,
     properties: {
+      university: {
+        type: 'string',
+        example: '한국대학교',
+        maxLength: 200,
+      },
       name: { type: 'string', example: '2026 봄 축제', maxLength: 200 },
+      startDate: {
+        type: 'string',
+        example: '2026-05-10',
+        maxLength: 32,
+      },
+      endDate: {
+        type: 'string',
+        example: '2026-05-12',
+        maxLength: 32,
+      },
       location: {
         type: 'string',
         example: '중앙광장 일대',
         maxLength: 500,
-      },
-      period: {
-        type: 'string',
-        example: '5월 10일~12일',
-        maxLength: 200,
       },
     },
     description:
@@ -79,7 +99,7 @@ const FESTIVAL_LIST_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '축제 목록',
       description:
-        '**JWT 불필요.** 등록된 축제 정보를 `id` **내림차순**으로 반환합니다.',
+        '**JWT 불필요.** 등록된 축제 정보를 `startDate`, `endDate`, `name` **오름차순**으로 반환합니다.',
     }),
     ApiOkResponse({
       description: 'Festival 배열',
@@ -99,8 +119,8 @@ const FESTIVAL_GET_GROUPS: DecoratorArg[][] = [
     }),
     ApiParam({
       name: 'id',
-      type: Number,
-      example: 1,
+      type: String,
+      example: 'clxfestival001',
       description: '축제 PK',
     }),
     ApiOkResponse({
@@ -118,7 +138,7 @@ const FESTIVAL_CREATE_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '축제 생성',
       description:
-        '**JWT 필수.** `name`, `location`, `period`로 축제 행사 정보를 추가합니다. (전역 메타데이터이며 **어느 스토어 로그인이든 동일하게 생성 가능**합니다. 운영 정책에 맞게 사용하세요.)',
+        '**JWT 필수.** `university`, `name`, `startDate`, `endDate`, `location`으로 축제 행사 정보를 추가합니다. (전역 메타데이터이며 **어느 스토어 로그인이든 동일하게 생성 가능**합니다. 운영 정책에 맞게 사용하세요.)',
     }),
     ApiConsumes('application/json'),
     ApiBody(FESTIVAL_CREATE_BODY),
@@ -139,12 +159,12 @@ const FESTIVAL_UPDATE_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '축제 수정',
       description:
-        '**JWT 필수.** `PATCH /festivals/{id}`. `name`·`location`·`period` 중 포함된 필드만 반영합니다. 모두 빼면 **400**.',
+        '**JWT 필수.** `PATCH /festivals/{id}`. `university`·`name`·`startDate`·`endDate`·`location` 중 포함된 필드만 반영합니다. 모두 빼면 **400**.',
     }),
     ApiParam({
       name: 'id',
-      type: Number,
-      example: 1,
+      type: String,
+      example: 'clxfestival001',
     }),
     ApiConsumes('application/json'),
     ApiBody(FESTIVAL_PATCH_BODY),
@@ -170,8 +190,8 @@ const FESTIVAL_DELETE_GROUPS: DecoratorArg[][] = [
     }),
     ApiParam({
       name: 'id',
-      type: Number,
-      example: 1,
+      type: String,
+      example: 'clxfestival001',
     }),
     ApiNoContentResponse({ description: '삭제 완료' }),
     ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),

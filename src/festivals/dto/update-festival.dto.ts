@@ -9,6 +9,13 @@ function trim({ value }: { value: unknown }): unknown {
 }
 
 export class UpdateFestivalDto {
+  @ApiPropertyOptional(OPENAPI_UPDATE_FESTIVAL.university)
+  @Transform(trim)
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  university?: string;
+
   @ApiPropertyOptional(OPENAPI_UPDATE_FESTIVAL.name)
   @Transform(trim)
   @IsOptional()
@@ -16,17 +23,24 @@ export class UpdateFestivalDto {
   @MaxLength(200)
   name?: string;
 
+  @ApiPropertyOptional(OPENAPI_UPDATE_FESTIVAL.startDate)
+  @Transform(trim)
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  startDate?: string;
+
+  @ApiPropertyOptional(OPENAPI_UPDATE_FESTIVAL.endDate)
+  @Transform(trim)
+  @IsOptional()
+  @IsString()
+  @MaxLength(32)
+  endDate?: string;
+
   @ApiPropertyOptional(OPENAPI_UPDATE_FESTIVAL.location)
   @Transform(trim)
   @IsOptional()
   @IsString()
   @MaxLength(500)
   location?: string;
-
-  @ApiPropertyOptional(OPENAPI_UPDATE_FESTIVAL.period)
-  @Transform(trim)
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  period?: string;
 }
