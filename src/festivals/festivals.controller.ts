@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   UseGuards,
@@ -39,7 +38,7 @@ export class FestivalsPublicController {
 
   @Get(':id')
   @ApiFestivalGetDocs()
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Festival> {
+  findOne(@Param('id') id: string): Promise<Festival> {
     return this.festivalsService.findOne(id);
   }
 }
@@ -59,7 +58,7 @@ export class FestivalsStaffController {
   @Patch(':id')
   @ApiFestivalUpdateDocs()
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() dto: UpdateFestivalDto,
   ): Promise<Festival> {
     return this.festivalsService.update(id, dto);
@@ -68,7 +67,7 @@ export class FestivalsStaffController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiFestivalDeleteDocs()
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async remove(@Param('id') id: string): Promise<void> {
     await this.festivalsService.remove(id);
   }
 }
