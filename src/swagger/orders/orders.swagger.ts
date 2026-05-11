@@ -129,7 +129,7 @@ const ORDER_LIST_DECORATOR_GROUPS: DecoratorArg[][] = [
         '**JWT 필수.** `GET /orders?paid=...`. 스토어는 JWT **`sub`(store PK)** 로만 필터합니다.\n\n' +
         '**쿼리 `paid` (필수, boolean)**\n' +
         '- `paid=true` · **`paymentStatus === PAID`** 이면서 **`status`가 `COMPLETED`·`CANCELED`가 아닌** 주문만(입금 확인 후 처리 대기).\n' +
-        '- `paid=false` · **`paymentStatus`가 `PAID`가 아닌** 주문만(예: `PENDING` 입금 대기).\n\n' +
+        '- `paid=false` · **`paymentStatus`가 `PAID`가 아니면서 `status`가 `CANCELED`가 아닌** 주문만(예: `PENDING` 입금 대기).\n\n' +
         '응답은 **주문 단위** 배열 + 각 주문의 **`items`**(항목마다 **`menu.name`** 포함). `createdAt` **내림차순**.',
     }),
     ApiQuery({
