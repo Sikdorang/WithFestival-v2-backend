@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -13,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { Coupon } from '../../generated/prisma/client';
 import {
   ApiCouponCreateStaffDocs,
+  ApiCouponDeleteStaffDocs,
   ApiCouponListStaffDocs,
   ApiCouponPatchHolderDocs,
   ApiCouponPatchUsedDocs,
@@ -80,5 +82,14 @@ export class CouponsStaffController {
     @Body() dto: UpdateCouponHolderDto,
   ): Promise<Coupon> {
     return this.couponsService.updateHolder(storeId, couponId, dto);
+  }
+
+  @Delete(':id')
+  @ApiCouponDeleteStaffDocs()
+  remove(
+    @CurrentStoreId() storeId: number,
+    @Param('id', ParseIntPipe) couponId: number,
+  ): Promise<Coupon> {
+    return this.couponsService.deleteForStore(storeId, couponId);
   }
 }

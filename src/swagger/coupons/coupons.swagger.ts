@@ -237,3 +237,30 @@ const COUPON_PATCH_HOLDER_GROUPS: DecoratorArg[][] = [
 
 export const ApiCouponPatchHolderDocs = () =>
   composeMethodGroups(COUPON_PATCH_HOLDER_GROUPS);
+
+const COUPON_DELETE_STAFF_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '쿠폰 삭제(부스)',
+      description:
+        '**JWT 필수.** `DELETE /coupons/{id}`. 로그인한 스토어(`JWT sub`) 소속 쿠폰을 영구 삭제하고 삭제된 레코드를 반환합니다.',
+    }),
+    ApiParam({
+      name: 'id',
+      type: Number,
+      example: 1,
+      description: 'Coupon PK',
+    }),
+    ApiOkResponse({
+      description: '삭제된 Coupon',
+      schema: OPENAPI_COUPON_ENTITY_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+    ApiNotFoundResponse({
+      description: '해당 `id` 쿠폰이 없거나 다른 스토어 소유',
+    }),
+  ],
+];
+
+export const ApiCouponDeleteStaffDocs = () =>
+  composeMethodGroups(COUPON_DELETE_STAFF_GROUPS);
