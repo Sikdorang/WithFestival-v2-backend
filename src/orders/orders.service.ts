@@ -91,7 +91,7 @@ export class OrdersService {
 
   /**
    * JWT 스토어 기준 주문 단위 목록(최신순), 품목 포함.
-   * @param paid `true`: 입금 확인됨(PAID)이면서 아직 완료/취소 전. `false`: PAID가 아닌 주문.
+   * @param paid `true`: 입금 확인됨(PAID)이면서 아직 완료/취소 전. `false`: PAID가 아니면서 취소되지 않은 주문.
    */
   listByStore(storeId: number, paid: boolean) {
     const orderBy = { createdAt: 'desc' as const };
@@ -113,6 +113,7 @@ export class OrdersService {
       where: {
         storeId,
         paymentStatus: { not: PaymentStatus.PAID },
+        status: { not: OrderStatus.CANCELED },
       },
       orderBy,
       include: ORDER_DETAIL_INCLUDE,
