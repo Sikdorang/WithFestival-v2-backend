@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { SmsModule } from './sms/sms.module';
 import { StoresModule } from './stores/stores.module';
+import { TableLikesModule } from './table-likes/table-likes.module';
 import { WaitingsModule } from './waitings/waitings.module';
 
 @Module({
@@ -24,6 +25,7 @@ import { WaitingsModule } from './waitings/waitings.module';
     MissionsModule,
     OrdersModule,
     ReservationsModule,
+    TableLikesModule,
     WaitingsModule,
     SmsModule,
   ],
