@@ -51,4 +51,10 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @MaxLength(200)
   depositorName: string;
+
+  @ApiProperty({ ...OPENAPI_CREATE_ORDER.phoneNumber })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(32)
+  phoneNumber: string;
 }

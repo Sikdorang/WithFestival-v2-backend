@@ -1,0 +1,2 @@
+ALTER TABLE `Order`
+  ADD COLUMN `phoneNumber` VARCHAR(32) NULL;

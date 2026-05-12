@@ -37,6 +37,7 @@ export class SocketIoDocsController {
       tableId: 5,
       totalPrice: 9000,
       customerName: '홍길동',
+      phoneNumber: '01012345678',
       status: 'RECEIVED',
       paymentStatus: 'PENDING',
       createdAt: '2026-05-10T12:00:00.000Z',

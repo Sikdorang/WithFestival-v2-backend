@@ -23,6 +23,7 @@ type OrderWithItems = {
   tableId: number;
   totalPrice: number;
   customerName: string | null;
+  phoneNumber: string | null;
   status: string;
   paymentStatus: string;
   createdAt: Date;
@@ -251,6 +252,7 @@ export class NotificationsService {
       tableId: order.tableId,
       totalPrice: order.totalPrice,
       customerName: order.customerName,
+      phoneNumber: order.phoneNumber,
       status: order.status,
       paymentStatus: order.paymentStatus,
       createdAt: order.createdAt.toISOString(),

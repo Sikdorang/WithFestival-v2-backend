@@ -32,6 +32,14 @@ export class SocketDocsOrderRealtimePayload {
   })
   customerName!: string | null;
 
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: '01012345678',
+    description: '주문자 전화번호',
+  })
+  phoneNumber!: string | null;
+
   @ApiProperty({ example: 'RECEIVED', description: '주문 상태' })
   status!: string;
 
