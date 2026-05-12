@@ -33,6 +33,7 @@ model Store {
   reservationSlots ReservationSlot[]
   missions Mission[]
   coupons Coupon[]
+  tableLikes TableLike[]
 
   @@unique([authCode])
 }
@@ -131,6 +132,23 @@ model OrderItem {
 
   @@index([orderId])
   @@index([menuId])
+}
+
+model TableLike {
+  id        Int      @id @default(autoincrement())
+  tokenUuid String   @db.VarChar(191)
+  nickname  String   @db.VarChar(200)
+  storeId   Int
+  tableId   Int
+  likeCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([tokenUuid])
+  @@unique([storeId, tableId, nickname])
+  @@index([storeId, tableId])
 }
 
 model Waiting {
