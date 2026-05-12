@@ -106,6 +106,7 @@ model Order {
   paymentStatus PaymentStatus @default(PENDING)
 
   customerName String? @db.VarChar(200)
+  phoneNumber  String? @db.VarChar(32)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -19,6 +19,11 @@ export const OPENAPI_CREATE_ORDER = {
     maxLength: 200,
     description: '입금자명 → `Order.customerName`',
   } satisfies ApiPropertyOptions,
+  phoneNumber: {
+    example: '01012345678',
+    maxLength: 32,
+    description: '주문자 전화번호 → `Order.phoneNumber`',
+  } satisfies ApiPropertyOptions,
 } as const;
 
 /** 공개 주문 생성 본문에 추가되는 식별자 (가게/부스/테이블) */
@@ -76,6 +81,7 @@ export const OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA: Record<string, unknown> =
     'status',
     'paymentStatus',
     'customerName',
+    'phoneNumber',
     'createdAt',
     'updatedAt',
     'items',
@@ -95,6 +101,11 @@ export const OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA: Record<string, unknown> =
       type: 'string',
       nullable: true,
       example: '홍길동',
+    },
+    phoneNumber: {
+      type: 'string',
+      nullable: true,
+      example: '01012345678',
     },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },

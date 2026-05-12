@@ -13,6 +13,7 @@ export type OrderCreatedEvent = {
   tableId: number;
   totalPrice: number;
   customerName: string | null;
+  phoneNumber: string | null;
   status: string;
   paymentStatus: string;
   createdAt: string;

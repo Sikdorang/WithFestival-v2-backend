@@ -184,6 +184,7 @@ export class OrdersService {
         tableId,
         totalPrice: dto.totalPrice,
         customerName: dto.depositorName,
+        phoneNumber: dto.phoneNumber,
         status: 'RECEIVED',
         paymentStatus: 'PENDING',
         items: { create: createLines },
