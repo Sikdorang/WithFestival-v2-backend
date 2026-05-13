@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTableLikeDto } from './dto/create-table-like.dto';
+import { IncrementTableLikeDto } from './dto/increment-table-like.dto';
 
 export type TableLikeCreateResult = {
   id: number;
@@ -67,32 +68,27 @@ export class TableLikesService {
     return this.toCreateResult(row, totalLikeCount);
   }
 
-  async create(dto: CreateTableLikeDto): Promise<TableLikeCreateResult> {
-    await this.assertStoreExists(dto.storeId);
+  async incrementByToken(
+    dto: IncrementTableLikeDto,
+  ): Promise<TableLikeCreateResult> {
+    const tokenUuid = dto.tokenUuid.trim();
+    if (!tokenUuid.length) {
+      throw new BadRequestException('tokenUuid는 빈 문자열일 수 없습니다.');
+    }
 
-    const nickname = this.normalizeNickname(dto.nickname);
+    const existing = await this.prisma.tableLike.findUnique({
+      where: { tokenUuid },
+    });
+    if (!existing) {
+      throw new NotFoundException('TableLike token not found');
+    }
 
-    const row = await this.prisma.tableLike.upsert({
-      where: {
-        storeId_tableId_nickname: {
-          storeId: dto.storeId,
-          tableId: dto.tableId,
-          nickname,
-        },
-      },
-      create: {
-        tokenUuid: randomUUID(),
-        nickname,
-        storeId: dto.storeId,
-        tableId: dto.tableId,
-        likeCount: 1,
-      },
-      update: {
-        likeCount: { increment: 1 },
-      },
+    const row = await this.prisma.tableLike.update({
+      where: { tokenUuid },
+      data: { likeCount: { increment: 1 } },
     });
 
-    const totalLikeCount = await this.sumLikes(dto.storeId, dto.tableId);
+    const totalLikeCount = await this.sumLikes(row.storeId, row.tableId);
     return this.toCreateResult(row, totalLikeCount);
   }
 

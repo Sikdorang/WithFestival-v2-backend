@@ -18,6 +18,14 @@ export const OPENAPI_CREATE_TABLE_LIKE = {
   } satisfies ApiPropertyOptions,
 } as const;
 
+export const OPENAPI_INCREMENT_TABLE_LIKE = {
+  tokenUuid: {
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    maxLength: 191,
+    description: '`POST /table-likes/nickname` 응답으로 받은 UUID 토큰',
+  } satisfies ApiPropertyOptions,
+} as const;
+
 export const OPENAPI_TABLE_LIKE_CREATED_SCHEMA = {
   type: 'object',
   required: [

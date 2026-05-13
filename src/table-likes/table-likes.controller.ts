@@ -15,6 +15,7 @@ import {
   ApiTableLikesPublicControllerDocs,
 } from '../swagger/table-likes/table-likes.swagger';
 import { CreateTableLikeDto } from './dto/create-table-like.dto';
+import { IncrementTableLikeDto } from './dto/increment-table-like.dto';
 import {
   TableLikesService,
   type TableLikeCreateResult,
@@ -29,8 +30,10 @@ export class TableLikesPublicController {
 
   @Post('table-likes')
   @ApiTableLikeCreateDocs()
-  create(@Body() dto: CreateTableLikeDto): Promise<TableLikeCreateResult> {
-    return this.tableLikesService.create(dto);
+  incrementByToken(
+    @Body() dto: IncrementTableLikeDto,
+  ): Promise<TableLikeCreateResult> {
+    return this.tableLikesService.incrementByToken(dto);
   }
 
   @Post('table-likes/nickname')

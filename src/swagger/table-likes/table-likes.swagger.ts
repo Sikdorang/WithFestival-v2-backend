@@ -13,6 +13,7 @@ import {
 import { type DecoratorArg, composeClass, composeMethodGroups } from '../common/compose';
 import {
   OPENAPI_CREATE_TABLE_LIKE,
+  OPENAPI_INCREMENT_TABLE_LIKE,
   OPENAPI_TABLE_LIKE_CREATED_SCHEMA,
   OPENAPI_MY_TABLE_LIKE_COUNT_SCHEMA,
   OPENAPI_STORE_TABLE_LIKE_LIST_SCHEMA,
@@ -81,23 +82,38 @@ const TABLE_LIKE_NICKNAME_GROUPS: DecoratorArg[][] = [
 export const ApiTableLikeNicknameDocs = () =>
   composeMethodGroups(TABLE_LIKE_NICKNAME_GROUPS);
 
+const TABLE_LIKE_INCREMENT_BODY = {
+  schema: {
+    type: 'object' as const,
+    required: ['tokenUuid'],
+    properties: {
+      tokenUuid: {
+        type: 'string',
+        example: OPENAPI_INCREMENT_TABLE_LIKE.tokenUuid.example,
+        maxLength: OPENAPI_INCREMENT_TABLE_LIKE.tokenUuid.maxLength,
+        description: OPENAPI_INCREMENT_TABLE_LIKE.tokenUuid.description,
+      },
+    },
+  },
+};
+
 const TABLE_LIKE_CREATE_GROUPS: DecoratorArg[][] = [
   [
     ApiOperation({
       summary: '테이블 좋아요 수 증가',
       description:
-        '**JWT 불필요.** `POST /table-likes`. 프론트에서 `nickname`, `storeId`, `tableId`를 보내면 해당 사용자의 `likeCount`를 1 증가시킵니다. row가 없으면 백엔드가 `tokenUuid`를 UUID로 생성해 row를 만들고 `likeCount`를 1로 시작합니다.',
+        '**JWT 불필요.** `POST /table-likes`. 프론트에서 `tokenUuid`를 보내면 해당 사용자의 `likeCount`를 1 증가시킵니다. `tokenUuid`는 `POST /table-likes/nickname` 응답으로 받은 값이며, 존재하지 않으면 404.',
     }),
     ApiConsumes('application/json'),
-    ApiBody(TABLE_LIKE_CREATE_BODY),
+    ApiBody(TABLE_LIKE_INCREMENT_BODY),
     ApiCreatedResponse({
-      description: '생성된 TableLike row와 테이블 전체 좋아요 수',
+      description: '증가된 TableLike row와 테이블 전체 좋아요 수',
       schema: OPENAPI_TABLE_LIKE_CREATED_SCHEMA,
     }),
     ApiBadRequestResponse({
-      description: '본문 검증 실패(nickname/storeId/tableId 누락·형식 오류·길이 초과)',
+      description: '본문 검증 실패(tokenUuid 누락·빈 문자열·길이 초과)',
     }),
-    ApiNotFoundResponse({ description: '`storeId`에 해당하는 스토어 없음' }),
+    ApiNotFoundResponse({ description: '해당 `tokenUuid`의 TableLike row 없음' }),
   ],
 ];
 
