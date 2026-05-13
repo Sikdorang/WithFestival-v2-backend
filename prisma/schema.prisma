@@ -134,6 +134,18 @@ model OrderItem {
   @@index([menuId])
 }
 
+model Log {
+  id         Int      @id @default(autoincrement())
+  identifier String   @db.VarChar(191)
+  action     String   @db.VarChar(200)
+  storeId    Int
+  createdAt  DateTime @default(now())
+
+  @@index([identifier])
+  @@index([storeId])
+  @@index([createdAt])
+}
+
 model TableLike {
   id        Int      @id @default(autoincrement())
   tokenUuid String   @db.VarChar(191)

@@ -1,0 +1,7 @@
+ALTER TABLE `Log`
+  ADD COLUMN `storeId` INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE `Log`
+  MODIFY COLUMN `storeId` INTEGER NOT NULL;
+
+CREATE INDEX `Log_storeId_idx` ON `Log` (`storeId`);
