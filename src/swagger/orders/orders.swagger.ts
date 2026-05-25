@@ -267,67 +267,33 @@ const ORDER_PATCH_STATUS_COMPLETED: DecoratorArg[][] = [
 export const ApiOrderStatusCompletedDocs = () =>
   composeMethodGroups(ORDER_PATCH_STATUS_COMPLETED);
 
-const ORDER_ITEM_ORDER_ID_PARAM = {
-  name: 'orderId',
-  type: Number,
-  example: 1,
-  description: '주문 PK (`Order.id`)',
-} as const;
-
 const ORDER_ITEM_ID_PARAM = {
   name: 'itemId',
   type: Number,
   example: 7,
-  description: '품목 PK (`OrderItem.id`)',
+  description: '품목 PK (`OrderItem.id`). 소속 주문/스토어는 서버가 조회·검증',
 } as const;
 
-const ORDER_ITEM_PATCH_COMPLETED: DecoratorArg[][] = [
+const ORDER_ITEM_PATCH_TOGGLE_COMPLETED: DecoratorArg[][] = [
   [
     ApiOperation({
-      summary: '주문 품목 완료 처리(`OrderItem.completed = true`)',
+      summary: '주문 품목 완료 토글(`OrderItem.completed` 반전)',
       description:
-        '**JWT 필수.** `PATCH /orders/{orderId}/items/{itemId}/completed`. JWT `sub` 스토어 + `orderId`에 속한 `OrderItem`만 갱신합니다.\n\n' +
-        '본문은 없습니다. 해당 품목의 `completed`를 **true**로 둡니다(`Order.status`는 변경하지 않음).\n\n' +
-        '응답은 다른 주문 PATCH와 동일한 **갱신된 Order + items**(품목마다 `completed`·`menu.name` 포함)입니다.',
+        '**JWT 필수.** `PATCH /orders/items/{itemId}/toggle-completed`. 본문 없음.\n\n' +
+        '해당 `itemId`가 속한 주문이 **JWT `sub` 스토어**의 주문이어야 하며, 그렇지 않으면 **404**(타 스토어 정보 누출 방지). `completed`를 현재 값의 **반대**로 갱신합니다(`Order.status`는 변경하지 않음).\n\n' +
+        '응답은 갱신된 **Order 전체 + items**(품목마다 `completed`·`menu.name` 포함). 프론트에서 한 번의 호출로 리스트 갱신이 가능합니다.',
     }),
-    ApiParam(ORDER_ITEM_ORDER_ID_PARAM),
     ApiParam(ORDER_ITEM_ID_PARAM),
     ApiOkResponse({
       description: '갱신된 Order + items(품목마다 completed·menu 이름 포함)',
       schema: OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA,
     }),
     ApiNotFoundResponse({
-      description:
-        '주문이 해당 스토어에 없거나, 품목이 해당 주문에 속하지 않음',
+      description: '해당 itemId가 없거나, 다른 스토어 주문의 품목',
     }),
     ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
   ],
 ];
 
-export const ApiOrderItemCompletedDocs = () =>
-  composeMethodGroups(ORDER_ITEM_PATCH_COMPLETED);
-
-const ORDER_ITEM_PATCH_UNCOMPLETED: DecoratorArg[][] = [
-  [
-    ApiOperation({
-      summary: '주문 품목 완료 해제(`OrderItem.completed = false`)',
-      description:
-        '**JWT 필수.** `PATCH /orders/{orderId}/items/{itemId}/uncompleted`. JWT `sub` 스토어 + `orderId`에 속한 `OrderItem`만 갱신합니다.\n\n' +
-        '본문은 없습니다. 해당 품목의 `completed`를 **false**로 둡니다.',
-    }),
-    ApiParam(ORDER_ITEM_ORDER_ID_PARAM),
-    ApiParam(ORDER_ITEM_ID_PARAM),
-    ApiOkResponse({
-      description: '갱신된 Order + items(품목마다 completed·menu 이름 포함)',
-      schema: OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA,
-    }),
-    ApiNotFoundResponse({
-      description:
-        '주문이 해당 스토어에 없거나, 품목이 해당 주문에 속하지 않음',
-    }),
-    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
-  ],
-];
-
-export const ApiOrderItemUncompletedDocs = () =>
-  composeMethodGroups(ORDER_ITEM_PATCH_UNCOMPLETED);
+export const ApiOrderItemToggleCompletedDocs = () =>
+  composeMethodGroups(ORDER_ITEM_PATCH_TOGGLE_COMPLETED);

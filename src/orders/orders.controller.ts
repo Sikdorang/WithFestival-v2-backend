@@ -14,8 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiOrderCreatePublicDocs,
-  ApiOrderItemCompletedDocs,
-  ApiOrderItemUncompletedDocs,
+  ApiOrderItemToggleCompletedDocs,
   ApiOrderListAllDocs,
   ApiOrderListDocs,
   ApiOrderPaymentFailedDocs,
@@ -97,23 +96,12 @@ export class OrdersStaffController {
     return this.ordersService.setStatusCompleted(storeId, orderId);
   }
 
-  @Patch(':orderId/items/:itemId/completed')
-  @ApiOrderItemCompletedDocs()
-  setItemCompleted(
+  @Patch('items/:itemId/toggle-completed')
+  @ApiOrderItemToggleCompletedDocs()
+  toggleItemCompleted(
     @CurrentStoreId() storeId: number,
-    @Param('orderId', ParseIntPipe) orderId: number,
     @Param('itemId', ParseIntPipe) itemId: number,
   ) {
-    return this.ordersService.setItemCompleted(storeId, orderId, itemId, true);
-  }
-
-  @Patch(':orderId/items/:itemId/uncompleted')
-  @ApiOrderItemUncompletedDocs()
-  setItemUncompleted(
-    @CurrentStoreId() storeId: number,
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Param('itemId', ParseIntPipe) itemId: number,
-  ) {
-    return this.ordersService.setItemCompleted(storeId, orderId, itemId, false);
+    return this.ordersService.toggleItemCompleted(storeId, itemId);
   }
 }

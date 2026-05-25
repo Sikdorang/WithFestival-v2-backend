@@ -90,32 +90,31 @@ export class OrdersService {
   }
 
   /**
-   * 주문 안의 개별 품목(`OrderItem`) 단위 완료 토글.
-   * `Order.status`는 건드리지 않습니다(전체 완료 처리는 별도 엔드포인트).
+   * 주문 품목(`OrderItem`) 완료 상태 토글.
+   * - 프론트는 `itemId`만 전달; 소속 주문/스토어는 서버가 조회·검증
+   * - JWT `storeId`와 일치하지 않으면 **404**(타 스토어 품목 정보 누출 방지)
+   * - 현재 값의 반대로 갱신하며 `Order.status`는 건드리지 않음
    */
-  async setItemCompleted(
-    storeId: number,
-    orderId: number,
-    itemId: number,
-    completed: boolean,
-  ) {
-    await this.assertOrderInStore(storeId, orderId);
-
-    const existing = await this.prisma.orderItem.findFirst({
-      where: { id: itemId, orderId },
-      select: { id: true },
+  async toggleItemCompleted(storeId: number, itemId: number) {
+    const existing = await this.prisma.orderItem.findUnique({
+      where: { id: itemId },
+      select: {
+        id: true,
+        completed: true,
+        order: { select: { id: true, storeId: true } },
+      },
     });
-    if (!existing) {
-      throw new NotFoundException('Order item not found in this order');
+    if (!existing || existing.order.storeId !== storeId) {
+      throw new NotFoundException('Order item not found for this store');
     }
 
     await this.prisma.orderItem.update({
       where: { id: itemId },
-      data: { completed },
+      data: { completed: !existing.completed },
     });
 
     return this.prisma.order.findUniqueOrThrow({
-      where: { id: orderId },
+      where: { id: existing.order.id },
       include: ORDER_DETAIL_INCLUDE,
     });
   }
