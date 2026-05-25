@@ -140,6 +140,8 @@ model OrderItem {
   quantity Int
   /// 주문 시점 스냅샷 가격
   price    Int
+  /// 품목 단위 완료 처리 여부(부스 staff가 체크)
+  completed Boolean @default(false)
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
   menu  Menu  @relation(fields: [menuId], references: [id], onDelete: Restrict)

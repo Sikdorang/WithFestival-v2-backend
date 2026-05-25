@@ -14,6 +14,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiOrderCreatePublicDocs,
+  ApiOrderItemCompletedDocs,
+  ApiOrderItemUncompletedDocs,
   ApiOrderListAllDocs,
   ApiOrderListDocs,
   ApiOrderPaymentFailedDocs,
@@ -93,5 +95,25 @@ export class OrdersStaffController {
     @Param('id', ParseIntPipe) orderId: number,
   ) {
     return this.ordersService.setStatusCompleted(storeId, orderId);
+  }
+
+  @Patch(':orderId/items/:itemId/completed')
+  @ApiOrderItemCompletedDocs()
+  setItemCompleted(
+    @CurrentStoreId() storeId: number,
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Param('itemId', ParseIntPipe) itemId: number,
+  ) {
+    return this.ordersService.setItemCompleted(storeId, orderId, itemId, true);
+  }
+
+  @Patch(':orderId/items/:itemId/uncompleted')
+  @ApiOrderItemUncompletedDocs()
+  setItemUncompleted(
+    @CurrentStoreId() storeId: number,
+    @Param('orderId', ParseIntPipe) orderId: number,
+    @Param('itemId', ParseIntPipe) itemId: number,
+  ) {
+    return this.ordersService.setItemCompleted(storeId, orderId, itemId, false);
   }
 }

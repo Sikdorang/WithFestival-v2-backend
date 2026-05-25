@@ -90,6 +90,37 @@ export class OrdersService {
   }
 
   /**
+   * 주문 안의 개별 품목(`OrderItem`) 단위 완료 토글.
+   * `Order.status`는 건드리지 않습니다(전체 완료 처리는 별도 엔드포인트).
+   */
+  async setItemCompleted(
+    storeId: number,
+    orderId: number,
+    itemId: number,
+    completed: boolean,
+  ) {
+    await this.assertOrderInStore(storeId, orderId);
+
+    const existing = await this.prisma.orderItem.findFirst({
+      where: { id: itemId, orderId },
+      select: { id: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Order item not found in this order');
+    }
+
+    await this.prisma.orderItem.update({
+      where: { id: itemId },
+      data: { completed },
+    });
+
+    return this.prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
+      include: ORDER_DETAIL_INCLUDE,
+    });
+  }
+
+  /**
    * JWT 스토어 기준 주문 단위 목록(최신순), 품목 포함.
    * @param paid `true`: 입금 확인됨(PAID)이면서 아직 완료/취소 전. `false`: PAID가 아니면서 취소되지 않은 주문.
    */
