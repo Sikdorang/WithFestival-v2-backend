@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '../../generated/prisma/client';
+import { CouponType, Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponHolderDto } from './dto/update-coupon-holder.dto';
@@ -12,7 +12,7 @@ import { UpdateCouponUsedDto } from './dto/update-coupon-used.dto';
 import { ValidateCouponDto } from './dto/validate-coupon.dto';
 
 export type CouponValidateResult =
-  | { valid: true; discountPrice: number }
+  | { valid: true; type: CouponType; discountPrice: number }
   | { valid: false };
 
 @Injectable()
@@ -32,11 +32,19 @@ export class CouponsService {
       throw new BadRequestException('code는 빈 문자열일 수 없습니다.');
     }
 
+    const type = dto.type ?? CouponType.AMOUNT;
+    if (type === CouponType.PERCENT && dto.discountPrice > 100) {
+      throw new BadRequestException(
+        'type이 PERCENT일 때 discountPrice는 0~100 사이여야 합니다.',
+      );
+    }
+
     try {
       return await this.prisma.coupon.create({
         data: {
           storeId,
           code,
+          type,
           discountPrice: dto.discountPrice,
           used: false,
           holder:
@@ -80,6 +88,7 @@ export class CouponsService {
         storeId_code: { storeId, code },
       },
       select: {
+        type: true,
         discountPrice: true,
         used: true,
       },
@@ -89,7 +98,7 @@ export class CouponsService {
       return { valid: false };
     }
 
-    return { valid: true, discountPrice: row.discountPrice };
+    return { valid: true, type: row.type, discountPrice: row.discountPrice };
   }
 
   async updateUsed(

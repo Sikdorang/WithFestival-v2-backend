@@ -39,16 +39,18 @@ model Store {
 }
 
 model Coupon {
-  id            Int     @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   storeId       Int
   /// 부스별 유일 번호(trim 후 저장·조회)
-  code          String  @db.VarChar(64)
-  /// 할인 금액(원), 0 이상
+  code          String     @db.VarChar(64)
+  /// 할인 유형. AMOUNT=정액 할인(원), PERCENT=정률 할인(0~100)
+  type          CouponType @default(AMOUNT)
+  /// 할인 값. type이 AMOUNT면 원(₩) 단위 금액, PERCENT면 0~100 사이 정수
   discountPrice Int
   /// 사용 완료 여부(본 검증 API에서는 갱신하지 않음)
-  used          Boolean @default(false)
+  used          Boolean    @default(false)
   /// 쿠폰을 받은 사람(이름·연락처 등 자유 텍스트, 없으면 null)
-  holder        String? @db.VarChar(200)
+  holder        String?    @db.VarChar(200)
 
   store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
@@ -238,4 +240,11 @@ enum WaitingStatus {
   WAITING
   ENTERED
   CANCELED
+}
+
+enum CouponType {
+  /// 정액 할인 (원 단위, discountPrice가 차감 금액)
+  AMOUNT
+  /// 정률 할인 (0~100, discountPrice가 퍼센트 값)
+  PERCENT
 }
