@@ -66,12 +66,21 @@ const COUPON_CREATE_BODY = {
         maxLength: 64,
         description: '쿠폰 번호(스토어 내 유일, trim)',
       },
+      type: {
+        type: 'string',
+        enum: ['AMOUNT', 'PERCENT'],
+        example: 'AMOUNT',
+        default: 'AMOUNT',
+        description:
+          '선택. 할인 유형. `AMOUNT`=정액(원), `PERCENT`=정률(%). 생략 시 `AMOUNT`',
+      },
       discountPrice: {
         type: 'integer',
         example: 3000,
         minimum: 0,
         maximum: 2_000_000_000,
-        description: '할인 금액(원)',
+        description:
+          '할인 값. `type=AMOUNT`면 원 단위 금액, `type=PERCENT`면 0~100 사이 정수(초과 시 400)',
       },
       holder: {
         type: 'string',
@@ -111,10 +120,10 @@ export const ApiCouponsStaffControllerDocs = () =>
 const COUPON_VALIDATE_GROUPS: DecoratorArg[][] = [
   [
     ApiOperation({
-      summary: '쿠폰 번호 검증(할인액 조회)',
+      summary: '쿠폰 번호 검증(할인액·유형 조회)',
       description:
         '**JWT 불필요.** `POST /stores/{storeId}/coupons/validate`\n\n' +
-        '본문 `code`를 trim한 뒤, 해당 스토어의 쿠폰과 **`storeId`+`code` 복합 유일**로 조회합니다. **미사용**(`used === false`)이면 **`valid: true`** 와 **`discountPrice`**(원)를 반환합니다. 번호 불일치·이미 사용·스토어 없음은 모두 **`valid: false`** (스토어가 없으면 **404**). **이 API는 `used`를 변경하지 않습니다.**',
+        '본문 `code`를 trim한 뒤, 해당 스토어의 쿠폰과 **`storeId`+`code` 복합 유일**로 조회합니다. **미사용**(`used === false`)이면 **`valid: true`** 와 함께 **`type`**(`AMOUNT`/`PERCENT`)·**`discountPrice`**(`AMOUNT`면 원, `PERCENT`면 0~100)를 반환합니다. 번호 불일치·이미 사용·스토어 없음은 모두 **`valid: false`** (스토어가 없으면 **404**). **이 API는 `used`를 변경하지 않습니다.**',
     }),
     ApiParam({
       name: 'storeId',
@@ -125,7 +134,7 @@ const COUPON_VALIDATE_GROUPS: DecoratorArg[][] = [
     ApiConsumes('application/json'),
     ApiBody(COUPON_VALIDATE_BODY),
     ApiOkResponse({
-      description: '`valid`; 유효 시 `discountPrice` 포함',
+      description: '`valid`; 유효 시 `type`·`discountPrice` 포함',
       schema: OPENAPI_COUPON_VALIDATE_RESPONSE_SCHEMA,
     }),
     ApiBadRequestResponse({ description: '본문 검증 실패(빈 code 등)' }),
@@ -159,7 +168,8 @@ const COUPON_CREATE_STAFF_GROUPS: DecoratorArg[][] = [
     ApiOperation({
       summary: '쿠폰 생성(부스)',
       description:
-        '**JWT 필수.** `POST /coupons`. `sub` 스토어에 쿠폰을 추가합니다. `code`는 해당 스토어에서 **유일**해야 하며 중복 시 **409**입니다. 생성 시 **`used`는 항상 false**입니다.',
+        '**JWT 필수.** `POST /coupons`. `sub` 스토어에 쿠폰을 추가합니다. `code`는 해당 스토어에서 **유일**해야 하며 중복 시 **409**입니다. 생성 시 **`used`는 항상 false**입니다.\n\n' +
+        '`type`을 생략하면 **`AMOUNT`(정액 할인)** 로 저장됩니다. `type=PERCENT`인 경우 `discountPrice`는 **0~100** 범위로 제한되며 초과 시 **400**입니다.',
     }),
     ApiConsumes('application/json'),
     ApiBody(COUPON_CREATE_BODY),

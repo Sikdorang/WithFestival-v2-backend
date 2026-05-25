@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -10,6 +11,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { CouponType } from '../../../generated/prisma/client';
 import { OPENAPI_CREATE_COUPON } from '../../swagger/coupons/dto.openapi';
 
 function trimHolder({ value }: { value: unknown }): unknown {
@@ -35,6 +37,11 @@ export class CreateCouponDto {
   @Min(0)
   @Max(2_000_000_000)
   discountPrice!: number;
+
+  @ApiPropertyOptional({ ...OPENAPI_CREATE_COUPON.type })
+  @IsOptional()
+  @IsEnum(CouponType)
+  type?: CouponType;
 
   @ApiPropertyOptional({ ...OPENAPI_CREATE_COUPON.holder })
   @Transform(trimHolder)

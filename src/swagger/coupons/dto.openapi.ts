@@ -12,7 +12,15 @@ export const OPENAPI_CREATE_COUPON = {
     example: 3000,
     minimum: 0,
     maximum: 2_000_000_000,
-    description: '할인 금액(원)',
+    description:
+      '할인 값. `type`이 `AMOUNT`면 원(₩) 단위 금액, `PERCENT`면 0~100 사이 정수.',
+  } satisfies ApiPropertyOptions,
+  type: {
+    enum: ['AMOUNT', 'PERCENT'],
+    example: 'AMOUNT',
+    default: 'AMOUNT',
+    description:
+      '할인 유형. `AMOUNT`=정액(원), `PERCENT`=정률(%). 생략 시 `AMOUNT`.',
   } satisfies ApiPropertyOptions,
   holder: {
     example: '이영희 010-9999-0000',
@@ -40,11 +48,19 @@ export const OPENAPI_COUPON_VALIDATE_RESPONSE_SCHEMA = {
       description:
         '`true`: 해당 스토어에 존재하고 아직 미사용(`used === false`)인 쿠폰과 일치',
     },
+    type: {
+      type: 'string',
+      enum: ['AMOUNT', 'PERCENT'],
+      example: 'AMOUNT',
+      description:
+        '`valid === true`일 때만 포함. 할인 유형. `AMOUNT`=정액(원), `PERCENT`=정률(%)',
+    },
     discountPrice: {
       type: 'integer',
       minimum: 0,
       example: 2000,
-      description: '`valid === true`일 때만 포함. 할인 금액(원)',
+      description:
+        '`valid === true`일 때만 포함. `type=AMOUNT`면 원 금액, `type=PERCENT`면 0~100 사이의 퍼센트 값',
     },
   },
 } as Record<string, unknown>;
@@ -69,7 +85,19 @@ const OPENAPI_COUPON_ROW_PROPERTIES: Record<string, unknown> = {
   id: { type: 'integer', example: 1 },
   storeId: { type: 'integer', example: 1 },
   code: { type: 'string', example: 'FEST2026-ABC' },
-  discountPrice: { type: 'integer', minimum: 0, example: 2000 },
+  type: {
+    type: 'string',
+    enum: ['AMOUNT', 'PERCENT'],
+    example: 'AMOUNT',
+    description: '할인 유형. `AMOUNT`=정액(원), `PERCENT`=정률(%)',
+  },
+  discountPrice: {
+    type: 'integer',
+    minimum: 0,
+    example: 2000,
+    description:
+      '`type=AMOUNT`면 원 금액, `type=PERCENT`면 0~100 사이의 퍼센트 값',
+  },
   used: { type: 'boolean', example: false },
   holder: {
     type: 'string',
@@ -81,7 +109,15 @@ const OPENAPI_COUPON_ROW_PROPERTIES: Record<string, unknown> = {
 
 export const OPENAPI_COUPON_ENTITY_SCHEMA = {
   type: 'object',
-  required: ['id', 'storeId', 'code', 'discountPrice', 'used', 'holder'],
+  required: [
+    'id',
+    'storeId',
+    'code',
+    'type',
+    'discountPrice',
+    'used',
+    'holder',
+  ],
   properties: OPENAPI_COUPON_ROW_PROPERTIES,
 } as Record<string, unknown>;
 
