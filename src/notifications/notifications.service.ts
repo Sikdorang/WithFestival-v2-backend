@@ -8,6 +8,7 @@ import {
   type OrderCreatedEvent,
   type OrderCreatedItemEvent,
 } from './dto/order-created-event.dto';
+import type { OrderItemCompletedChangedEvent } from './dto/order-item-completed-changed-event.dto';
 import {
   WaitingCreatedEvent,
   WaitingStatusChangedPayload,
@@ -149,6 +150,39 @@ export class NotificationsService {
       BOOTH_NOTIFICATION_EVENTS.ORDER_STATUS_COMPLETED,
       'order.status.completed',
     );
+  }
+
+  /**
+   * 개별 `OrderItem.completed` 토글 후 동일 스토어 룸에 델타만 브로드캐스트.
+   * 변경된 품목·새 값만 전달해 수신측이 로컬 상태에 in-place 패치 가능.
+   */
+  emitOrderItemCompletedChanged(input: {
+    storeId: number;
+    orderId: number;
+    itemId: number;
+    completed: boolean;
+  }): void {
+    const payload: OrderItemCompletedChangedEvent = {
+      orderId: input.orderId,
+      storeId: input.storeId,
+      itemId: input.itemId,
+      completed: input.completed,
+      changedAt: new Date().toISOString(),
+    };
+
+    try {
+      this.emitToBooth(
+        input.storeId,
+        BOOTH_NOTIFICATION_EVENTS.ORDER_ITEM_COMPLETED_CHANGED,
+        payload,
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Failed to emit order.item.completed.changed for item ${input.itemId} (order ${input.orderId}): ${
+          error instanceof Error ? error.message : 'unknown error'
+        }`,
+      );
+    }
   }
 
   emitReservationCreated(reservation: ReservationWireRow): void {

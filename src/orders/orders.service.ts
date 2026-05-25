@@ -108,15 +108,26 @@ export class OrdersService {
       throw new NotFoundException('Order item not found for this store');
     }
 
+    const nextCompleted = !existing.completed;
+
     await this.prisma.orderItem.update({
       where: { id: itemId },
-      data: { completed: !existing.completed },
+      data: { completed: nextCompleted },
     });
 
-    return this.prisma.order.findUniqueOrThrow({
+    const updatedOrder = await this.prisma.order.findUniqueOrThrow({
       where: { id: existing.order.id },
       include: ORDER_DETAIL_INCLUDE,
     });
+
+    this.notificationsService.emitOrderItemCompletedChanged({
+      storeId,
+      orderId: existing.order.id,
+      itemId,
+      completed: nextCompleted,
+    });
+
+    return updatedOrder;
   }
 
   /**

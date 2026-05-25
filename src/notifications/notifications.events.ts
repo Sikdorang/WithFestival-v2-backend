@@ -13,6 +13,7 @@
  * | 주문 | `order.payment.paid` | 부스 `PATCH …/payment/paid` |
  * | 주문 | `order.status.canceled` | 부스 `PATCH …/status/cancelled` |
  * | 주문 | `order.status.completed` | 부스 `PATCH …/status/completed` |
+ * | 주문 | `order.item.completed.changed` | 부스 `PATCH /orders/items/{itemId}/toggle-completed` (개별 품목 완료 토글) |
  * | 웨이팅 | `waiting.created` | 고객 줄서기 생성 |
  * | 웨이팅 | `waiting.status.canceled` | 부스 WAITING 상태 → CANCELED |
  * | 웨이팅 | `waiting.status.entered` | 부스 WAITING → ENTERED (입장·완료 처리) |
@@ -25,6 +26,8 @@ export const STORE_SOCKET_EVENTS = {
   ORDER_PAYMENT_PAID: 'order.payment.paid',
   ORDER_STATUS_CANCELED: 'order.status.canceled',
   ORDER_STATUS_COMPLETED: 'order.status.completed',
+  /** 개별 OrderItem 완료 토글 (true ↔ false) */
+  ORDER_ITEM_COMPLETED_CHANGED: 'order.item.completed.changed',
 
   WAITING_CREATED: 'waiting.created',
   WAITING_STATUS_CANCELED: 'waiting.status.canceled',
