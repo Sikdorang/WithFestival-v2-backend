@@ -90,6 +90,47 @@ export class OrdersService {
   }
 
   /**
+   * 주문 품목(`OrderItem`) 완료 상태 토글.
+   * - 프론트는 `itemId`만 전달; 소속 주문/스토어는 서버가 조회·검증
+   * - JWT `storeId`와 일치하지 않으면 **404**(타 스토어 품목 정보 누출 방지)
+   * - 현재 값의 반대로 갱신하며 `Order.status`는 건드리지 않음
+   */
+  async toggleItemCompleted(storeId: number, itemId: number) {
+    const existing = await this.prisma.orderItem.findUnique({
+      where: { id: itemId },
+      select: {
+        id: true,
+        completed: true,
+        order: { select: { id: true, storeId: true } },
+      },
+    });
+    if (!existing || existing.order.storeId !== storeId) {
+      throw new NotFoundException('Order item not found for this store');
+    }
+
+    const nextCompleted = !existing.completed;
+
+    await this.prisma.orderItem.update({
+      where: { id: itemId },
+      data: { completed: nextCompleted },
+    });
+
+    const updatedOrder = await this.prisma.order.findUniqueOrThrow({
+      where: { id: existing.order.id },
+      include: ORDER_DETAIL_INCLUDE,
+    });
+
+    this.notificationsService.emitOrderItemCompletedChanged({
+      storeId,
+      orderId: existing.order.id,
+      itemId,
+      completed: nextCompleted,
+    });
+
+    return updatedOrder;
+  }
+
+  /**
    * JWT 스토어 기준 주문 단위 목록(최신순), 품목 포함.
    * @param paid `true`: 입금 확인됨(PAID)이면서 아직 완료/취소 전. `false`: PAID가 아니면서 취소되지 않은 주문.
    */

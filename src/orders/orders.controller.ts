@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentStoreId } from '../auth/decorators/current-store-id.decorator';
 import {
   ApiOrderCreatePublicDocs,
+  ApiOrderItemToggleCompletedDocs,
   ApiOrderListAllDocs,
   ApiOrderListDocs,
   ApiOrderPaymentFailedDocs,
@@ -93,5 +94,14 @@ export class OrdersStaffController {
     @Param('id', ParseIntPipe) orderId: number,
   ) {
     return this.ordersService.setStatusCompleted(storeId, orderId);
+  }
+
+  @Patch('items/:itemId/toggle-completed')
+  @ApiOrderItemToggleCompletedDocs()
+  toggleItemCompleted(
+    @CurrentStoreId() storeId: number,
+    @Param('itemId', ParseIntPipe) itemId: number,
+  ) {
+    return this.ordersService.toggleItemCompleted(storeId, itemId);
   }
 }

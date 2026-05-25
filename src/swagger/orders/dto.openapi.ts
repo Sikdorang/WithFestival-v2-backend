@@ -59,13 +59,18 @@ const OPENAPI_ORDER_MENU_SNAPSHOT: Record<string, unknown> = {
 /** 품목 + 메뉴 이름(조인) */
 export const OPENAPI_ORDER_ITEM_WITH_MENU_SCHEMA: Record<string, unknown> = {
   type: 'object',
-  required: ['id', 'orderId', 'menuId', 'quantity', 'price', 'menu'],
+  required: ['id', 'orderId', 'menuId', 'quantity', 'price', 'completed', 'menu'],
   properties: {
     id: { type: 'integer', example: 1 },
     orderId: { type: 'integer', example: 10 },
     menuId: { type: 'integer', example: 3 },
     quantity: { type: 'integer', example: 2, minimum: 1 },
     price: { type: 'integer', example: 4500, minimum: 0, description: '주문 시점 단가 스냅샷' },
+    completed: {
+      type: 'boolean',
+      example: false,
+      description: '품목 단위 완료 처리 여부(부스 staff가 토글). 신규 주문 생성 시 항상 `false`.',
+    },
     menu: OPENAPI_ORDER_MENU_SNAPSHOT,
   },
 };
