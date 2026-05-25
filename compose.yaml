@@ -32,6 +32,7 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
       AWS_REGION: ${AWS_REGION:-ap-southeast-2}
       S3_BUCKET: ${S3_BUCKET:-}
+      GOOGLE_TRANSLATE_API_KEY: ${GOOGLE_TRANSLATE_API_KEY:-}
     depends_on:
       mysql:
         condition: service_healthy

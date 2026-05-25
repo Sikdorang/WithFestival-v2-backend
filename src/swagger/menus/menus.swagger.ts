@@ -184,7 +184,8 @@ const MENU_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
       summary: '메뉴 등록',
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어 구분은 JWT payload의 `sub`(store PK)이며, 별도 `storeId` 필드는 없습니다.\n\n' +
-        'multipart: **`name`만 필수.** `image`, `price`, `marginRate`, `description`은 선택입니다. `price`·`marginRate` 생략 시 **0**입니다. `marginRate`는 정수 **%**(0~100). 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.',
+        'multipart: **`name`만 필수.** `image`, `price`, `marginRate`, `description`은 선택입니다. `price`·`marginRate` 생략 시 **0**입니다. `marginRate`는 정수 **%**(0~100). 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.\n\n' +
+        '**자동 번역**: 한국어 `name`(필수)과 `description`(있는 경우)을 기반으로 서버가 Google Cloud Translation API를 호출해 영/중/일 번역을 자동 저장합니다. 응답에는 `nameEn`/`nameZh`/`nameJa`, `descriptionEn`/`descriptionZh`/`descriptionJa`가 포함됩니다. 번역 API 미설정·실패 시 번역 필드는 `null`이 되며 메뉴 등록 자체는 성공합니다. (요청에는 다국어 필드를 보낼 수 없습니다.)',
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody(MENU_CREATE_BODY),
@@ -223,7 +224,8 @@ const MENU_PATCH_DECORATOR_GROUPS: DecoratorArg[][] = [
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어는 JWT payload의 `sub`(store PK)로 결정됩니다.\n\n' +
         '`PATCH /menus/:id` — `:id`는 메뉴 PK입니다. 해당 메뉴가 **같은 스토어**에 속하지 않으면 404입니다.\n\n' +
-        '`multipart/form-data`: `image`, `name`, `price`, `marginRate`, `description`은 **전부 선택**이며, **요청에 실제로 포함된 항목만** DB에 반영합니다. 필드·이미지를 하나도 보내지 않으면 400입니다.',
+        '`multipart/form-data`: `image`, `name`, `price`, `marginRate`, `description`은 **전부 선택**이며, **요청에 실제로 포함된 항목만** DB에 반영합니다. `description`을 빈 문자열로 보내면 설명을 null로 제거합니다. 필드·이미지를 하나도 보내지 않으면 400입니다.\n\n' +
+        '**자동 번역**: 한국어 `name`을 새로 보내면 영/중/일(`nameEn`/`nameZh`/`nameJa`)이 새 값을 기준으로 재번역되어 덮어써집니다. `description`도 동일하게 동작하며, 빈 문자열로 제거할 경우 `descriptionEn`/`descriptionZh`/`descriptionJa`도 null로 정리됩니다. 한국어 필드를 보내지 않으면 기존 번역은 유지됩니다. (요청에는 다국어 필드를 보낼 수 없습니다.)',
     }),
     ApiParam({
       name: 'id',
