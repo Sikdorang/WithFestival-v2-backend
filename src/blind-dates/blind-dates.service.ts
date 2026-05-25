@@ -1,16 +1,23 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBlindDateDto } from './dto/create-blind-date.dto';
 import { ListBlindDatesDto } from './dto/list-blind-dates.dto';
 
 /**
- * 운영자 인증 비밀번호 fallback.
- * 운영 환경에서는 환경변수 `BLIND_DATE_ADMIN_PASSWORD`를 설정해 회전 가능.
+ * 운영자 인증 비밀번호는 **반드시 환경변수**(`BLIND_DATE_ADMIN_PASSWORD`)로만 주입합니다.
+ * 보안상 소스 코드와 공개 문서(Swagger)에는 어떤 fallback/example 도 두지 않습니다.
  */
-const DEFAULT_ADMIN_PASSWORD = 'ftvww0921@';
+const ADMIN_PASSWORD_ENV_KEY = 'BLIND_DATE_ADMIN_PASSWORD' as const;
 
 @Injectable()
 export class BlindDatesService {
+  private readonly logger = new Logger(BlindDatesService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -33,12 +40,15 @@ export class BlindDatesService {
   }
 
   /**
-   * 본문 비밀번호가 일치할 때만 전체 명단을 createdAt 내림차순으로 반환.
-   * 비밀번호는 환경변수 `BLIND_DATE_ADMIN_PASSWORD`(미설정 시 기본값) 와 정확히 일치해야 함.
-   * 타이밍 공격 방어를 위해 상수시간 비교를 사용.
+   * 본문 비밀번호가 환경변수 `BLIND_DATE_ADMIN_PASSWORD` 와 일치할 때만
+   * 전체 명단을 createdAt 내림차순으로 반환.
+   *
+   * - 환경변수가 비어 있으면 **503** 으로 응답(소스/공개문서 어디에도 fallback 없음)
+   * - 타이밍 공격 방어를 위해 상수시간 비교
    */
   async listAll(dto: ListBlindDatesDto) {
-    if (!safeEqual(dto.password, this.getAdminPassword())) {
+    const expected = this.getAdminPasswordOrThrow();
+    if (!safeEqual(dto.password, expected)) {
       throw new UnauthorizedException('Invalid password');
     }
 
@@ -47,9 +57,17 @@ export class BlindDatesService {
     });
   }
 
-  private getAdminPassword(): string {
-    const raw = process.env.BLIND_DATE_ADMIN_PASSWORD?.trim();
-    return raw && raw.length ? raw : DEFAULT_ADMIN_PASSWORD;
+  private getAdminPasswordOrThrow(): string {
+    const raw = process.env[ADMIN_PASSWORD_ENV_KEY]?.trim();
+    if (!raw || !raw.length) {
+      this.logger.error(
+        `${ADMIN_PASSWORD_ENV_KEY} env is not configured; refusing to authenticate.`,
+      );
+      throw new ServiceUnavailableException(
+        'Admin authentication is not configured on the server',
+      );
+    }
+    return raw;
   }
 }
 
