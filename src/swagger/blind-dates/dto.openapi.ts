@@ -44,6 +44,19 @@ export const OPENAPI_CREATE_BLIND_DATE = {
   } satisfies ApiPropertyOptions,
 } as const;
 
+/**
+ * `GET /blind-dates` 본문 — 운영자 인증 비밀번호.
+ * 환경변수 `BLIND_DATE_ADMIN_PASSWORD`(미설정 시 소스 기본값) 와
+ * 정확히 일치하지 않으면 401.
+ */
+export const OPENAPI_LIST_BLIND_DATES = {
+  password: {
+    example: 'ftvww0921@',
+    description:
+      '운영자 인증 비밀번호. 서버 측 환경변수 값과 정확히 일치해야 함.',
+  } satisfies ApiPropertyOptions,
+} as const;
+
 /** `BlindDate` 엔티티 응답 스키마 — 생성 응답 등에서 사용 */
 export const OPENAPI_BLIND_DATE_ENTITY_SCHEMA: Record<string, unknown> = {
   type: 'object',
@@ -83,4 +96,10 @@ export const OPENAPI_BLIND_DATE_ENTITY_SCHEMA: Record<string, unknown> = {
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
   },
+};
+
+/** `BlindDate[]` 목록 응답 스키마 — `GET /blind-dates` (최신순) */
+export const OPENAPI_BLIND_DATE_LIST_RESPONSE_SCHEMA: Record<string, unknown> = {
+  type: 'array',
+  items: OPENAPI_BLIND_DATE_ENTITY_SCHEMA,
 };

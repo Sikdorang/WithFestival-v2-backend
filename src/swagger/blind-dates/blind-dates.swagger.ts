@@ -1,15 +1,21 @@
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiCreatedResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
   type DecoratorArg,
   composeClass,
   composeMethodGroups,
 } from '../common/compose';
-import { OPENAPI_BLIND_DATE_ENTITY_SCHEMA } from './dto.openapi';
+import {
+  OPENAPI_BLIND_DATE_ENTITY_SCHEMA,
+  OPENAPI_BLIND_DATE_LIST_RESPONSE_SCHEMA,
+} from './dto.openapi';
 import { BLIND_DATES_SWAGGER_TAG } from './tag.constants';
 
 /** 컨트롤러 클래스 데코레이터 묶음 — JWT 없음(공개 응모) */
@@ -37,3 +43,42 @@ const BLIND_DATE_CREATE_DECORATORS: DecoratorArg[][] = [
 
 export const ApiBlindDateCreateDocs = () =>
   composeMethodGroups(BLIND_DATE_CREATE_DECORATORS);
+
+const BLIND_DATE_LIST_BODY = {
+  schema: {
+    type: 'object' as const,
+    required: ['password'],
+    properties: {
+      password: {
+        type: 'string',
+        example: 'ftvww0921@',
+        description:
+          '운영자 인증 비밀번호. 서버 측 `BLIND_DATE_ADMIN_PASSWORD` 환경변수 값과 정확히 일치해야 함.',
+      },
+    },
+  },
+};
+
+const BLIND_DATE_LIST_DECORATORS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '소개팅 명단 전체 조회(인증 본문)',
+      description:
+        '**JWT 없음.** `GET /blind-dates` — 요청 본문(JSON)에 `password`를 정확히 일치하게 보내야만 응답을 받습니다. 인증값은 서버 환경변수 `BLIND_DATE_ADMIN_PASSWORD`로 관리합니다.\n\n' +
+        '응답은 `BlindDate[]` (최신순). 모든 컬럼이 포함되며 운영자 표시용 `numberDelivered`도 함께 옵니다.\n\n' +
+        '⚠️ **클라이언트 주의** — HTTP 표준상 GET 본문은 비표준이라 일부 클라이언트(브라우저 `fetch`, 일부 프록시)는 본문을 전달하지 못할 수 있습니다. 권장: Postman 또는 `curl -X GET -H "Content-Type: application/json" --data \'{"password":"..."}\'`.',
+    }),
+    ApiBody(BLIND_DATE_LIST_BODY),
+    ApiOkResponse({
+      description: 'BlindDate[] (createdAt 내림차순)',
+      schema: OPENAPI_BLIND_DATE_LIST_RESPONSE_SCHEMA,
+    }),
+    ApiBadRequestResponse({
+      description: '본문 유효성 검사 실패(`password` 누락 등)',
+    }),
+    ApiUnauthorizedResponse({ description: '`password` 불일치' }),
+  ],
+];
+
+export const ApiBlindDateListDocs = () =>
+  composeMethodGroups(BLIND_DATE_LIST_DECORATORS);
