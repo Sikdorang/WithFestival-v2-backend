@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { STORE_SOCKET_EVENTS } from '../../notifications/notifications.events';
 import {
+  SocketDocsOrderItemCompletedChangedPayload,
   SocketDocsOrderRealtimePayload,
   SocketDocsReservationCreatedPayload,
   SocketDocsReservationRejectedPayload,
@@ -44,6 +45,23 @@ export class SocketIoDocsController {
       items: [
         { id: 1, menuId: 10, price: 4500, quantity: 2, menuName: '떡볶이' },
       ],
+    };
+  }
+
+  @Get('payload-order-item-completed-changed')
+  @ApiOperation({
+    summary: `\`${STORE_SOCKET_EVENTS.ORDER_ITEM_COMPLETED_CHANGED}\` 페이로드`,
+    description:
+      '`PATCH /orders/items/{itemId}/toggle-completed` 성공 후 동일 스토어 룸(`booth:{storeId}`)으로 발행됩니다. **풀 오더 대신 변경 델타만** 담아 클라이언트가 로컬 상태에 in-place 패치 가능합니다.',
+  })
+  @ApiOkResponse({ type: SocketDocsOrderItemCompletedChangedPayload })
+  payloadOrderItemCompletedChanged(): SocketDocsOrderItemCompletedChangedPayload {
+    return {
+      orderId: 1,
+      storeId: 3,
+      itemId: 23,
+      completed: true,
+      changedAt: '2026-05-25T19:43:12.345Z',
     };
   }
 

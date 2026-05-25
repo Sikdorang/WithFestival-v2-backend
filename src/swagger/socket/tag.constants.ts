@@ -26,6 +26,7 @@ socket.on('order.created', (payload) => { ... });
 | \`order.payment.paid\` | 주문 계열 공통 |
 | \`order.status.canceled\` | 주문 계열 공통 |
 | \`order.status.completed\` | 주문 계열 공통 |
+| \`order.item.completed.changed\` | 개별 \`OrderItem.completed\` 토글 (델타) |
 | \`waiting.created\` | 웨이팅 생성 |
 | \`waiting.status.canceled\` | 웨이팅 상태 변경 |
 | \`waiting.status.entered\` | 웨이팅 상태 변경 |
