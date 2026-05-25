@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { SwaggerSocketModule } from './swagger/socket/swagger-socket.module';
+import { BlindDatesModule } from './blind-dates/blind-dates.module';
 import { CouponsModule } from './coupons/coupons.module';
 import { FestivalsModule } from './festivals/festivals.module';
 import { LogsModule } from './logs/logs.module';
@@ -19,6 +20,7 @@ import { WaitingsModule } from './waitings/waitings.module';
     PrismaModule,
     SwaggerSocketModule,
     AuthModule,
+    BlindDatesModule,
     CouponsModule,
     FestivalsModule,
     LogsModule,

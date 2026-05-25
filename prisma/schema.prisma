@@ -262,3 +262,38 @@ enum CouponType {
   /// 정률 할인 (0~100, discountPrice가 퍼센트 값)
   PERCENT
 }
+
+enum Gender {
+  /// 남
+  MALE
+  /// 녀
+  FEMALE
+}
+
+/// 소개팅 명단(축제 등 운영자가 매칭용으로 모으는 응모자 목록).
+/// 본인 정보(이름·나이·연락처·MBTI·외모 스타일·성별)와 매칭 시 상대 번호를
+/// 전달받을 휴대폰 번호(`deliveryPhone`)를 함께 저장합니다.
+model BlindDate {
+  id              Int      @id @default(autoincrement())
+  /// 본인 이름
+  name            String   @db.VarChar(100)
+  /// 나이
+  age             Int
+  /// 연락처(인스타/카톡 ID 등 자유 텍스트)
+  contact         String   @db.VarChar(200)
+  /// MBTI 16유형 (예: ENFP)
+  mbti            String   @db.VarChar(8)
+  /// 외모 스타일 코드(운영자가 정의한 정수값, 예: 1~5)
+  appearanceStyle Int
+  /// 성별
+  gender          Gender
+  /// 본인에게 매칭 상대 번호를 이미 전달했는지 여부(운영자 표시용)
+  numberDelivered Boolean  @default(false)
+  /// 매칭 시 상대 번호를 받을 본인 휴대폰 번호
+  deliveryPhone   String   @db.VarChar(32)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([gender, numberDelivered])
+  @@index([createdAt])
+}
