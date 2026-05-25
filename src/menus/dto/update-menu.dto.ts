@@ -59,4 +59,58 @@ export class UpdateMenuDto {
   @IsString()
   @MaxLength(2000)
   description?: string;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.nameEn })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? undefined : String(value),
+  )
+  @IsString()
+  @MaxLength(200)
+  nameEn?: string;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.nameZh })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? undefined : String(value),
+  )
+  @IsString()
+  @MaxLength(200)
+  nameZh?: string;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.nameJa })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? undefined : String(value),
+  )
+  @IsString()
+  @MaxLength(200)
+  nameJa?: string;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.descriptionEn })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? undefined : String(value),
+  )
+  @IsString()
+  @MaxLength(2000)
+  descriptionEn?: string;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.descriptionZh })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? undefined : String(value),
+  )
+  @IsString()
+  @MaxLength(2000)
+  descriptionZh?: string;
+
+  @ApiPropertyOptional({ ...OPENAPI_UPDATE_MENU.descriptionJa })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === null || value === undefined ? undefined : String(value),
+  )
+  @IsString()
+  @MaxLength(2000)
+  descriptionJa?: string;
 }

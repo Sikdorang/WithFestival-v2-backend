@@ -76,12 +76,24 @@ model Menu {
   id          Int     @id @default(autoincrement())
   storeId     Int
   name        String  @db.VarChar(200)
+  /// 영어 메뉴명(선택)
+  nameEn      String? @db.VarChar(200)
+  /// 중국어 메뉴명(선택)
+  nameZh      String? @db.VarChar(200)
+  /// 일본어 메뉴명(선택)
+  nameJa      String? @db.VarChar(200)
   price       Int
   /// 마진율(정수 %, 예: 15 = 15%)
   marginRate  Int     @default(0)
   /// 품절 여부(판매 가능 시 false)
   isSoldOut   Boolean @default(false)
   description String? @db.Text
+  /// 영어 설명(선택)
+  descriptionEn String? @db.Text
+  /// 중국어 설명(선택)
+  descriptionZh String? @db.Text
+  /// 일본어 설명(선택)
+  descriptionJa String? @db.Text
   imageUrl    String? @db.VarChar(512)
   /// soft delete
   deleted     Boolean  @default(false)
