@@ -55,6 +55,30 @@ export class SocketDocsOrderRealtimePayload {
   @ApiProperty({ type: SocketDocsOrderLineItem, isArray: true }) items!: SocketDocsOrderLineItem[];
 }
 
+/** `order.item.completed.changed` — 풀 오더 대신 변경 델타만 담는 가벼운 페이로드 */
+export class SocketDocsOrderItemCompletedChangedPayload {
+  @ApiProperty({ example: 1, description: '변경된 품목이 속한 주문 PK' })
+  orderId!: number;
+
+  @ApiProperty({ example: 3, description: '부스(스토어) PK — 룸 식별과 동일' })
+  storeId!: number;
+
+  @ApiProperty({ example: 23, description: '변경된 품목 PK (`OrderItem.id`)' })
+  itemId!: number;
+
+  @ApiProperty({
+    example: true,
+    description: '토글 후 새 값(true=완료, false=미완료)',
+  })
+  completed!: boolean;
+
+  @ApiProperty({
+    example: '2026-05-25T19:43:12.345Z',
+    description: '변경 시각(ISO 8601)',
+  })
+  changedAt!: string;
+}
+
 export class SocketDocsWaitingCreatedPayload {
   @ApiProperty({ example: 72 }) waitingId!: number;
 
