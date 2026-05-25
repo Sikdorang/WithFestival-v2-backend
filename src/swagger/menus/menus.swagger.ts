@@ -66,54 +66,6 @@ const MENU_MULTIPART_FIELDS: MultipartField[] = [
       description: '선택',
     },
   },
-  {
-    key: 'nameEn',
-    schema: {
-      type: 'string',
-      example: 'Tteokbokki',
-      description: '선택. 영어 메뉴명',
-    },
-  },
-  {
-    key: 'nameZh',
-    schema: {
-      type: 'string',
-      example: '辣炒年糕',
-      description: '선택. 중국어 메뉴명',
-    },
-  },
-  {
-    key: 'nameJa',
-    schema: {
-      type: 'string',
-      example: 'トッポッキ',
-      description: '선택. 일본어 메뉴명',
-    },
-  },
-  {
-    key: 'descriptionEn',
-    schema: {
-      type: 'string',
-      example: 'Mild spicy',
-      description: '선택. 영어 설명',
-    },
-  },
-  {
-    key: 'descriptionZh',
-    schema: {
-      type: 'string',
-      example: '微辣',
-      description: '선택. 중국어 설명',
-    },
-  },
-  {
-    key: 'descriptionJa',
-    schema: {
-      type: 'string',
-      example: '甘口',
-      description: '선택. 일본어 설명',
-    },
-  },
 ];
 
 const MENU_REQUIRED_KEYS = ['name'] as const;
@@ -177,60 +129,6 @@ const MENU_PATCH_MULTIPART_FIELDS: MultipartField[] = [
         '선택. 보낸 경우에만 반영합니다. 빈 문자열이면 DB에서 설명을 제거(null)합니다.',
     },
   },
-  {
-    key: 'nameEn',
-    schema: {
-      type: 'string',
-      example: 'Tteokbokki',
-      description:
-        '선택. 영어 메뉴명. 보낸 경우에만 반영. 빈 문자열이면 null로 제거.',
-    },
-  },
-  {
-    key: 'nameZh',
-    schema: {
-      type: 'string',
-      example: '辣炒年糕',
-      description:
-        '선택. 중국어 메뉴명. 보낸 경우에만 반영. 빈 문자열이면 null로 제거.',
-    },
-  },
-  {
-    key: 'nameJa',
-    schema: {
-      type: 'string',
-      example: 'トッポッキ',
-      description:
-        '선택. 일본어 메뉴명. 보낸 경우에만 반영. 빈 문자열이면 null로 제거.',
-    },
-  },
-  {
-    key: 'descriptionEn',
-    schema: {
-      type: 'string',
-      example: 'Mild spicy',
-      description:
-        '선택. 영어 설명. 보낸 경우에만 반영. 빈 문자열이면 null로 제거.',
-    },
-  },
-  {
-    key: 'descriptionZh',
-    schema: {
-      type: 'string',
-      example: '微辣',
-      description:
-        '선택. 중국어 설명. 보낸 경우에만 반영. 빈 문자열이면 null로 제거.',
-    },
-  },
-  {
-    key: 'descriptionJa',
-    schema: {
-      type: 'string',
-      example: '甘口',
-      description:
-        '선택. 일본어 설명. 보낸 경우에만 반영. 빈 문자열이면 null로 제거.',
-    },
-  },
 ];
 
 function buildMenuPatchMultipartSchema() {
@@ -286,8 +184,8 @@ const MENU_POST_DECORATOR_GROUPS: DecoratorArg[][] = [
       summary: '메뉴 등록',
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어 구분은 JWT payload의 `sub`(store PK)이며, 별도 `storeId` 필드는 없습니다.\n\n' +
-        'multipart: **`name`만 필수.** `image`, `price`, `marginRate`, `description`, 그리고 다국어 필드(`nameEn`/`nameZh`/`nameJa`, `descriptionEn`/`descriptionZh`/`descriptionJa`)는 모두 선택입니다. `price`·`marginRate` 생략 시 **0**입니다. `marginRate`는 정수 **%**(0~100). 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.\n\n' +
-        '**자동 번역**: 등록 시 한국어 `name`(필수)과 `description`(있는 경우)을 기반으로 Google Cloud Translation API를 호출해서 영/중/일 번역을 자동 채웁니다. 사용자가 특정 언어를 직접 입력하면 그 값이 우선됩니다. 번역 API 미설정·실패 시 해당 번역 필드는 `null`로 저장됩니다(메뉴 등록 자체는 성공).',
+        'multipart: **`name`만 필수.** `image`, `price`, `marginRate`, `description`은 선택입니다. `price`·`marginRate` 생략 시 **0**입니다. `marginRate`는 정수 **%**(0~100). 이미지가 있으면 S3 업로드 후 `imageUrl`에 저장하고, 없으면 `imageUrl`은 null입니다.\n\n' +
+        '**자동 번역**: 한국어 `name`(필수)과 `description`(있는 경우)을 기반으로 서버가 Google Cloud Translation API를 호출해 영/중/일 번역을 자동 저장합니다. 응답에는 `nameEn`/`nameZh`/`nameJa`, `descriptionEn`/`descriptionZh`/`descriptionJa`가 포함됩니다. 번역 API 미설정·실패 시 번역 필드는 `null`이 되며 메뉴 등록 자체는 성공합니다. (요청에는 다국어 필드를 보낼 수 없습니다.)',
     }),
     ApiConsumes('multipart/form-data'),
     ApiBody(MENU_CREATE_BODY),
@@ -326,8 +224,8 @@ const MENU_PATCH_DECORATOR_GROUPS: DecoratorArg[][] = [
       description:
         '**JWT 필수.** `Authorization: Bearer <accessToken>`. 스토어는 JWT payload의 `sub`(store PK)로 결정됩니다.\n\n' +
         '`PATCH /menus/:id` — `:id`는 메뉴 PK입니다. 해당 메뉴가 **같은 스토어**에 속하지 않으면 404입니다.\n\n' +
-        '`multipart/form-data`: `image`, `name`, `price`, `marginRate`, `description`, 그리고 다국어 필드(`nameEn`/`nameZh`/`nameJa`, `descriptionEn`/`descriptionZh`/`descriptionJa`)는 **전부 선택**이며, **요청에 실제로 포함된 항목만** DB에 반영합니다. 다국어 필드는 빈 문자열로 보내면 해당 언어를 null로 제거합니다. 필드·이미지를 하나도 보내지 않으면 400입니다.\n\n' +
-        '**자동 번역**: 한국어 `name` 또는 `description`을 이번 요청에 새로 보내면, 동일 요청에 명시적으로 보내지 *않은* 다국어 필드들은 새 한국어 값을 기준으로 영/중/일이 자동 재번역되어 덮어써집니다. 가격·마진율·이미지만 수정하는 경우엔 기존 번역은 그대로 유지됩니다. 사용자가 특정 언어 필드를 직접 입력하면 그 값이 우선됩니다.',
+        '`multipart/form-data`: `image`, `name`, `price`, `marginRate`, `description`은 **전부 선택**이며, **요청에 실제로 포함된 항목만** DB에 반영합니다. `description`을 빈 문자열로 보내면 설명을 null로 제거합니다. 필드·이미지를 하나도 보내지 않으면 400입니다.\n\n' +
+        '**자동 번역**: 한국어 `name`을 새로 보내면 영/중/일(`nameEn`/`nameZh`/`nameJa`)이 새 값을 기준으로 재번역되어 덮어써집니다. `description`도 동일하게 동작하며, 빈 문자열로 제거할 경우 `descriptionEn`/`descriptionZh`/`descriptionJa`도 null로 정리됩니다. 한국어 필드를 보내지 않으면 기존 번역은 유지됩니다. (요청에는 다국어 필드를 보낼 수 없습니다.)',
     }),
     ApiParam({
       name: 'id',

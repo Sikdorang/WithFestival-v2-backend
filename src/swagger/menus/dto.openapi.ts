@@ -10,36 +10,6 @@ export const OPENAPI_CREATE_MENU = {
     description: '마진율(정수 %, 예: 15 = 15%)',
   } satisfies ApiPropertyOptions,
   description: { example: '순한맛', maxLength: 2000 } satisfies ApiPropertyOptions,
-  nameEn: {
-    example: 'Tteokbokki',
-    maxLength: 200,
-    description: '영어 메뉴명(선택)',
-  } satisfies ApiPropertyOptions,
-  nameZh: {
-    example: '辣炒年糕',
-    maxLength: 200,
-    description: '중국어 메뉴명(선택)',
-  } satisfies ApiPropertyOptions,
-  nameJa: {
-    example: 'トッポッキ',
-    maxLength: 200,
-    description: '일본어 메뉴명(선택)',
-  } satisfies ApiPropertyOptions,
-  descriptionEn: {
-    example: 'Mild spicy',
-    maxLength: 2000,
-    description: '영어 설명(선택)',
-  } satisfies ApiPropertyOptions,
-  descriptionZh: {
-    example: '微辣',
-    maxLength: 2000,
-    description: '중국어 설명(선택)',
-  } satisfies ApiPropertyOptions,
-  descriptionJa: {
-    example: '甘口',
-    maxLength: 2000,
-    description: '일본어 설명(선택)',
-  } satisfies ApiPropertyOptions,
 } as const;
 
 export const OPENAPI_UPDATE_MENU = {
@@ -52,36 +22,6 @@ export const OPENAPI_UPDATE_MENU = {
     description: '마진율(정수 %)',
   } satisfies ApiPropertyOptions,
   description: { example: '순한맛', maxLength: 2000 } satisfies ApiPropertyOptions,
-  nameEn: {
-    example: 'Tteokbokki',
-    maxLength: 200,
-    description: '영어 메뉴명. 빈 문자열이면 null로 제거',
-  } satisfies ApiPropertyOptions,
-  nameZh: {
-    example: '辣炒年糕',
-    maxLength: 200,
-    description: '중국어 메뉴명. 빈 문자열이면 null로 제거',
-  } satisfies ApiPropertyOptions,
-  nameJa: {
-    example: 'トッポッキ',
-    maxLength: 200,
-    description: '일본어 메뉴명. 빈 문자열이면 null로 제거',
-  } satisfies ApiPropertyOptions,
-  descriptionEn: {
-    example: 'Mild spicy',
-    maxLength: 2000,
-    description: '영어 설명. 빈 문자열이면 null로 제거',
-  } satisfies ApiPropertyOptions,
-  descriptionZh: {
-    example: '微辣',
-    maxLength: 2000,
-    description: '중국어 설명. 빈 문자열이면 null로 제거',
-  } satisfies ApiPropertyOptions,
-  descriptionJa: {
-    example: '甘口',
-    maxLength: 2000,
-    description: '일본어 설명. 빈 문자열이면 null로 제거',
-  } satisfies ApiPropertyOptions,
 } as const;
 
 const OPENAPI_MENU_PUBLIC_ITEM_PROPERTIES = {

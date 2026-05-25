@@ -64,46 +64,4 @@ export class CreateMenuDto {
   @IsString()
   @MaxLength(2000)
   description?: string;
-
-  @ApiPropertyOptional({ ...OPENAPI_CREATE_MENU.nameEn })
-  @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  @MaxLength(200)
-  nameEn?: string;
-
-  @ApiPropertyOptional({ ...OPENAPI_CREATE_MENU.nameZh })
-  @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  @MaxLength(200)
-  nameZh?: string;
-
-  @ApiPropertyOptional({ ...OPENAPI_CREATE_MENU.nameJa })
-  @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  @MaxLength(200)
-  nameJa?: string;
-
-  @ApiPropertyOptional({ ...OPENAPI_CREATE_MENU.descriptionEn })
-  @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  @MaxLength(2000)
-  descriptionEn?: string;
-
-  @ApiPropertyOptional({ ...OPENAPI_CREATE_MENU.descriptionZh })
-  @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  @MaxLength(2000)
-  descriptionZh?: string;
-
-  @ApiPropertyOptional({ ...OPENAPI_CREATE_MENU.descriptionJa })
-  @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  @MaxLength(2000)
-  descriptionJa?: string;
 }

@@ -119,44 +119,24 @@ export class MenusService {
 
     const description = pickOrNull(dto.description);
 
-    const userTr = {
-      nameEn: pickOrNull(dto.nameEn),
-      nameZh: pickOrNull(dto.nameZh),
-      nameJa: pickOrNull(dto.nameJa),
-      descriptionEn: pickOrNull(dto.descriptionEn),
-      descriptionZh: pickOrNull(dto.descriptionZh),
-      descriptionJa: pickOrNull(dto.descriptionJa),
-    };
-
-    const needAutoName =
-      !userTr.nameEn || !userTr.nameZh || !userTr.nameJa;
-    const needAutoDesc =
-      !!description &&
-      (!userTr.descriptionEn ||
-        !userTr.descriptionZh ||
-        !userTr.descriptionJa);
-
-    const auto =
-      needAutoName || needAutoDesc
-        ? await this.translation.translateMenuFields({
-            name: needAutoName ? dto.name : null,
-            description: needAutoDesc ? description : null,
-          })
-        : null;
+    const translated = await this.translation.translateMenuFields({
+      name: dto.name,
+      description,
+    });
 
     return this.prisma.menu.create({
       data: {
         storeId,
         name: dto.name,
-        nameEn: userTr.nameEn ?? auto?.nameEn ?? null,
-        nameZh: userTr.nameZh ?? auto?.nameZh ?? null,
-        nameJa: userTr.nameJa ?? auto?.nameJa ?? null,
+        nameEn: translated.nameEn,
+        nameZh: translated.nameZh,
+        nameJa: translated.nameJa,
         price: dto.price ?? 0,
         marginRate: dto.marginRate ?? 0,
         description,
-        descriptionEn: userTr.descriptionEn ?? auto?.descriptionEn ?? null,
-        descriptionZh: userTr.descriptionZh ?? auto?.descriptionZh ?? null,
-        descriptionJa: userTr.descriptionJa ?? auto?.descriptionJa ?? null,
+        descriptionEn: translated.descriptionEn,
+        descriptionZh: translated.descriptionZh,
+        descriptionJa: translated.descriptionJa,
         imageUrl,
       },
     });
@@ -195,45 +175,17 @@ export class MenusService {
     if (dto.description !== undefined) {
       data.description = dto.description.length ? dto.description : null;
     }
-    if (dto.nameEn !== undefined) {
-      data.nameEn = dto.nameEn.length ? dto.nameEn : null;
-    }
-    if (dto.nameZh !== undefined) {
-      data.nameZh = dto.nameZh.length ? dto.nameZh : null;
-    }
-    if (dto.nameJa !== undefined) {
-      data.nameJa = dto.nameJa.length ? dto.nameJa : null;
-    }
-    if (dto.descriptionEn !== undefined) {
-      data.descriptionEn = dto.descriptionEn.length ? dto.descriptionEn : null;
-    }
-    if (dto.descriptionZh !== undefined) {
-      data.descriptionZh = dto.descriptionZh.length ? dto.descriptionZh : null;
-    }
-    if (dto.descriptionJa !== undefined) {
-      data.descriptionJa = dto.descriptionJa.length ? dto.descriptionJa : null;
-    }
 
-    // 한국어 source가 이번 요청에서 바뀌었고, 같은 언어 override가 없으면 자동 재번역.
+    // 한국어 source가 이번 요청에서 바뀌었으면 영/중/일을 통째로 재번역.
+    // 한국어가 비어있으면(description만 해당) 해당 번역 컬럼도 null로 정리.
     const koreanNameChanged = dto.name !== undefined;
     const koreanDescChanged = dto.description !== undefined;
 
-    const needAutoNameEn = koreanNameChanged && dto.nameEn === undefined;
-    const needAutoNameZh = koreanNameChanged && dto.nameZh === undefined;
-    const needAutoNameJa = koreanNameChanged && dto.nameJa === undefined;
-    const needAutoDescEn =
-      koreanDescChanged && dto.descriptionEn === undefined;
-    const needAutoDescZh =
-      koreanDescChanged && dto.descriptionZh === undefined;
-    const needAutoDescJa =
-      koreanDescChanged && dto.descriptionJa === undefined;
-
-    const anyAutoName = needAutoNameEn || needAutoNameZh || needAutoNameJa;
-    const anyAutoDesc = needAutoDescEn || needAutoDescZh || needAutoDescJa;
-
-    if (anyAutoName || anyAutoDesc) {
-      const newKoreanName = anyAutoName ? pickOrNull(data.name) : null;
-      const newKoreanDesc = anyAutoDesc ? pickOrNull(data.description) : null;
+    if (koreanNameChanged || koreanDescChanged) {
+      const newKoreanName = koreanNameChanged ? pickOrNull(data.name) : null;
+      const newKoreanDesc = koreanDescChanged
+        ? pickOrNull(data.description)
+        : null;
 
       const auto =
         newKoreanName || newKoreanDesc
@@ -243,28 +195,21 @@ export class MenusService {
             })
           : null;
 
-      if (anyAutoName) {
-        if (newKoreanName) {
-          if (needAutoNameEn) data.nameEn = auto?.nameEn ?? null;
-          if (needAutoNameZh) data.nameZh = auto?.nameZh ?? null;
-          if (needAutoNameJa) data.nameJa = auto?.nameJa ?? null;
-        } else {
-          if (needAutoNameEn) data.nameEn = null;
-          if (needAutoNameZh) data.nameZh = null;
-          if (needAutoNameJa) data.nameJa = null;
-        }
+      if (koreanNameChanged) {
+        data.nameEn = newKoreanName ? (auto?.nameEn ?? null) : null;
+        data.nameZh = newKoreanName ? (auto?.nameZh ?? null) : null;
+        data.nameJa = newKoreanName ? (auto?.nameJa ?? null) : null;
       }
-
-      if (anyAutoDesc) {
-        if (newKoreanDesc) {
-          if (needAutoDescEn) data.descriptionEn = auto?.descriptionEn ?? null;
-          if (needAutoDescZh) data.descriptionZh = auto?.descriptionZh ?? null;
-          if (needAutoDescJa) data.descriptionJa = auto?.descriptionJa ?? null;
-        } else {
-          if (needAutoDescEn) data.descriptionEn = null;
-          if (needAutoDescZh) data.descriptionZh = null;
-          if (needAutoDescJa) data.descriptionJa = null;
-        }
+      if (koreanDescChanged) {
+        data.descriptionEn = newKoreanDesc
+          ? (auto?.descriptionEn ?? null)
+          : null;
+        data.descriptionZh = newKoreanDesc
+          ? (auto?.descriptionZh ?? null)
+          : null;
+        data.descriptionJa = newKoreanDesc
+          ? (auto?.descriptionJa ?? null)
+          : null;
       }
     }
 
@@ -278,7 +223,7 @@ export class MenusService {
 
     if (Object.keys(data).length === 0) {
       throw new BadRequestException(
-        'Provide at least one of: name, price, marginRate, description, image, or any translation field (nameEn/nameZh/nameJa/descriptionEn/descriptionZh/descriptionJa)',
+        'Provide at least one of: name, price, marginRate, description, or image',
       );
     }
 
