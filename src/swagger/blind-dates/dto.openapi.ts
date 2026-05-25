@@ -44,23 +44,6 @@ export const OPENAPI_CREATE_BLIND_DATE = {
   } satisfies ApiPropertyOptions,
 } as const;
 
-/**
- * `GET /blind-dates` 본문 — 운영자 인증 비밀번호.
- * 환경변수 `BLIND_DATE_ADMIN_PASSWORD` 값과 정확히 일치하지 않으면 401.
- *
- * 보안: 실제 비밀번호 값은 Swagger(공개 문서)에 노출하지 않습니다.
- * `example` 필드를 의도적으로 비워두어 운영자에게만 별도 채널로 공유되는 값을 사용하도록 유도.
- */
-export const OPENAPI_LIST_BLIND_DATES = {
-  password: {
-    description:
-      '운영자 인증 비밀번호. 서버 측 환경변수(`BLIND_DATE_ADMIN_PASSWORD`) 값과 정확히 일치해야 응답을 받습니다. **실제 값은 별도 안전한 채널로 전달**되며 본 문서에는 노출하지 않습니다.',
-    minLength: 1,
-    maxLength: 128,
-    writeOnly: true,
-  } satisfies ApiPropertyOptions,
-} as const;
-
 /** `BlindDate` 엔티티 응답 스키마 — 생성 응답 등에서 사용 */
 export const OPENAPI_BLIND_DATE_ENTITY_SCHEMA: Record<string, unknown> = {
   type: 'object',
