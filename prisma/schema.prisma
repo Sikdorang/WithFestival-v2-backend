@@ -14,6 +14,12 @@ model Store {
   name          String @db.VarChar(200)
   accountNumber String? @db.VarChar(100)
   notice        String? @db.Text
+  /// 영어 공지(자동 번역, `notice` 저장 시 동시 갱신)
+  noticeEn      String? @db.Text
+  /// 중국어 공지(자동 번역, `notice` 저장 시 동시 갱신)
+  noticeZh      String? @db.Text
+  /// 일본어 공지(자동 번역, `notice` 저장 시 동시 갱신)
+  noticeJa      String? @db.Text
   event         String? @db.VarChar(500)
   reservationEnabled Boolean @default(false)
   /// 예약 시작 예정 시각 기준 5분 전 SMS(또는 발송 파이프) 안내 사용

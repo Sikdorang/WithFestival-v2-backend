@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { TranslationService } from '../translation/translation.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreAccountNumberDto } from './dto/update-store-account-number.dto';
 import { UpdateStoreEventDto } from './dto/update-store-event.dto';
@@ -17,6 +18,9 @@ export type StorePublicInfo = {
   name: string;
   accountNumber: string | null;
   notice: string | null;
+  noticeEn: string | null;
+  noticeZh: string | null;
+  noticeJa: string | null;
   event: string | null;
   reservationEnabled: boolean;
   reservationRemindSms5MinBefore: boolean;
@@ -28,7 +32,10 @@ export type StorePublicInfo = {
 
 @Injectable()
 export class StoresService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly translation: TranslationService,
+  ) {}
 
   async getPublicInfo(storeId: number): Promise<StorePublicInfo> {
     const row = await this.prisma.store.findUnique({
@@ -38,6 +45,9 @@ export class StoresService {
         name: true,
         accountNumber: true,
         notice: true,
+        noticeEn: true,
+        noticeZh: true,
+        noticeJa: true,
         event: true,
         reservationEnabled: true,
         reservationRemindSms5MinBefore: true,
@@ -53,12 +63,17 @@ export class StoresService {
     return row;
   }
 
-  create(dto: CreateStoreDto) {
+  async create(dto: CreateStoreDto) {
+    const noticeKo = pickOrNull(dto.notice);
+    const translated = await this.translation.translateText(noticeKo);
     return this.prisma.store.create({
       data: {
         name: dto.name,
         accountNumber: dto.accountNumber,
-        notice: dto.notice,
+        notice: noticeKo,
+        noticeEn: translated.en,
+        noticeZh: translated.zh,
+        noticeJa: translated.ja,
         event: dto.event,
         reservationEnabled: false,
         missionsEnabled: false,
@@ -78,8 +93,20 @@ export class StoresService {
     });
   }
 
-  updateNotice(id: number, dto: UpdateStoreNoticeDto) {
-    return this.updateStoreOrThrow(id, { notice: dto.notice });
+  /**
+   * 공지(한국어 본문)를 갱신하면서 영/중/일 자동 번역값을 함께 저장합니다.
+   * - `dto.notice`가 빈 문자열·undefined이면 모든 언어 컬럼을 `null`로 정리합니다.
+   * - 번역 실패/키 미설정 시에는 한국어만 저장하고 다국어 컬럼은 `null`로 폴백합니다.
+   */
+  async updateNotice(id: number, dto: UpdateStoreNoticeDto) {
+    const noticeKo = pickOrNull(dto.notice);
+    const translated = await this.translation.translateText(noticeKo);
+    return this.updateStoreOrThrow(id, {
+      notice: noticeKo,
+      noticeEn: translated.en,
+      noticeZh: translated.zh,
+      noticeJa: translated.ja,
+    });
   }
 
   updateEvent(id: number, dto: UpdateStoreEventDto) {
@@ -127,4 +154,11 @@ export class StoresService {
       throw e;
     }
   }
+}
+
+/** 빈 문자열·undefined·null·공백만 → null, 그 외엔 원문 그대로 */
+function pickOrNull(value: string | null | undefined): string | null {
+  if (value === undefined || value === null) return null;
+  const trimmed = value.trim();
+  return trimmed.length ? value : null;
 }
