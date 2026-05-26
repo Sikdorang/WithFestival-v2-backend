@@ -9,6 +9,8 @@ export const OPENAPI_CREATE_STORE = {
   notice: {
     example: '오늘의 추천 메뉴는 …',
     maxLength: 2000,
+    description:
+      '한국어 공지. 저장 시 서버가 영/중/일로 **자동 번역**하여 `noticeEn`·`noticeZh`·`noticeJa`에 동시 반영합니다(번역 키 미설정/실패 시 다국어 컬럼은 `null`).',
   } satisfies ApiPropertyOptions,
   event: {
     example: '첫 주문 10% 할인',
@@ -36,6 +38,9 @@ export const OPENAPI_UPDATE_STORE_NOTICE = {
   notice: {
     example: '영업 시간: 18:00~23:00',
     maxLength: 2000,
+    description:
+      '한국어 공지 본문. 저장 시 서버가 영/중/일을 **자동 번역**하여 `noticeEn`·`noticeZh`·`noticeJa`도 함께 갱신합니다. ' +
+      '값을 비우면(빈 문자열·생략) 한국어·다국어 모두 `null`로 정리됩니다.',
   } satisfies ApiPropertyOptions,
 } as const;
 
@@ -100,8 +105,23 @@ export const OPENAPI_STORE_PUBLIC_INFO = {
   } satisfies ApiPropertyOptions,
   notice: {
     example: '오늘의 추천 메뉴는 …',
-    description: '공지',
+    description: '공지(한국어 원문)',
     maxLength: 2000,
+    nullable: true,
+  } satisfies ApiPropertyOptions,
+  noticeEn: {
+    example: 'Today’s recommendation is …',
+    description: '공지 영어 자동 번역(없거나 번역 실패 시 `null`)',
+    nullable: true,
+  } satisfies ApiPropertyOptions,
+  noticeZh: {
+    example: '今日推荐菜单是 …',
+    description: '공지 중국어(간체) 자동 번역(없거나 번역 실패 시 `null`)',
+    nullable: true,
+  } satisfies ApiPropertyOptions,
+  noticeJa: {
+    example: '本日のおすすめメニューは …',
+    description: '공지 일본어 자동 번역(없거나 번역 실패 시 `null`)',
     nullable: true,
   } satisfies ApiPropertyOptions,
   event: {
@@ -145,6 +165,9 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
     'name',
     'accountNumber',
     'notice',
+    'noticeEn',
+    'noticeZh',
+    'noticeJa',
     'event',
     'reservationEnabled',
     'missionsEnabled',
@@ -170,7 +193,25 @@ export const OPENAPI_STORE_PUBLIC_INFO_RESPONSE_SCHEMA = {
       type: 'string',
       nullable: true,
       example: '오늘의 추천 메뉴는 …',
-      description: '공지',
+      description: '공지(한국어 원문)',
+    },
+    noticeEn: {
+      type: 'string',
+      nullable: true,
+      example: 'Today’s recommendation is …',
+      description: '공지 영어 자동 번역',
+    },
+    noticeZh: {
+      type: 'string',
+      nullable: true,
+      example: '今日推荐菜单是 …',
+      description: '공지 중국어(간체) 자동 번역',
+    },
+    noticeJa: {
+      type: 'string',
+      nullable: true,
+      example: '本日のおすすめメニューは …',
+      description: '공지 일본어 자동 번역',
     },
     event: {
       type: 'string',

@@ -25,6 +25,12 @@ export type MenuTranslationOutput = {
   descriptionJa: string | null;
 };
 
+export type TextTranslationOutput = {
+  en: string | null;
+  zh: string | null;
+  ja: string | null;
+};
+
 const EMPTY_TRANSLATION: MenuTranslationOutput = {
   nameEn: null,
   nameZh: null,
@@ -32,6 +38,12 @@ const EMPTY_TRANSLATION: MenuTranslationOutput = {
   descriptionEn: null,
   descriptionZh: null,
   descriptionJa: null,
+};
+
+const EMPTY_TEXT_TRANSLATION: TextTranslationOutput = {
+  en: null,
+  zh: null,
+  ja: null,
 };
 
 @Injectable()
@@ -113,6 +125,56 @@ export class TranslationService {
         `Google Translate API call failed; skipping translations: ${msg}`,
       );
       return { ...EMPTY_TRANSLATION };
+    }
+  }
+
+  /**
+   * 단일 한국어 텍스트를 영/중/일 3개 언어로 동시 번역합니다.
+   *
+   * - 입력이 비어/공백/`null`/`undefined`이면 모든 결과를 `null`로 반환합니다(API 호출 X).
+   * - `GOOGLE_TRANSLATE_API_KEY` 미설정 또는 호출 실패 시에도 예외를 던지지 않고 `null`로 폴백합니다.
+   * - 메뉴(`translateMenuFields`)와 동일한 정책을 단일 필드(`Store.notice` 같은 텍스트)에 재사용하기 위한 헬퍼.
+   */
+  async translateText(
+    input: string | null | undefined,
+  ): Promise<TextTranslationOutput> {
+    const text = normalize(input);
+    if (!text) {
+      return { ...EMPTY_TEXT_TRANSLATION };
+    }
+
+    const client = this.getClient();
+    if (!client) {
+      return { ...EMPTY_TEXT_TRANSLATION };
+    }
+
+    try {
+      const langs: SupportedLang[] = ['en', 'zh', 'ja'];
+      const results = await Promise.all(
+        langs.map((lang) =>
+          client.translate(text, {
+            from: SOURCE_LANG,
+            to: GOOGLE_LANG_CODE[lang],
+            format: 'text',
+          }),
+        ),
+      );
+
+      const out: TextTranslationOutput = { ...EMPTY_TEXT_TRANSLATION };
+      langs.forEach((lang, i) => {
+        const [translated] = results[i];
+        const value = Array.isArray(translated)
+          ? (translated[0] ?? null)
+          : (translated ?? null);
+        out[lang] = value;
+      });
+      return out;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      this.logger.warn(
+        `Google Translate API call failed; skipping translations: ${msg}`,
+      );
+      return { ...EMPTY_TEXT_TRANSLATION };
     }
   }
 
