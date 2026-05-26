@@ -172,6 +172,15 @@ export class OrdersService {
     });
   }
 
+  /** JWT 스토어 기준 **취소된** 주문만(`status === CANCELED`), 최신순, 품목 포함. */
+  listCanceledByStore(storeId: number) {
+    return this.prisma.order.findMany({
+      where: { storeId, status: OrderStatus.CANCELED },
+      orderBy: { createdAt: 'desc' },
+      include: ORDER_DETAIL_INCLUDE,
+    });
+  }
+
   /** JWT 없이 본문의 `storeId`·`boothId`·`tableId`로 주문 (부스 PK는 현재 `Store.id` 한 종류) */
   async createFromPublicDto(dto: CreatePublicOrderDto) {
     if (dto.storeId !== dto.boothId) {
@@ -211,12 +220,20 @@ export class OrdersService {
       );
     }
 
-    const createLines: Prisma.OrderItemCreateManyOrderInput[] = dto.items.map(
-      (row): Prisma.OrderItemCreateManyOrderInput => ({
-        menuId: row.menuId,
-        price: row.price,
-        quantity: row.quantity,
-      }),
+    // 행 분할 저장: 클라이언트가 `{ menuId, price, quantity: N }` 한 줄을 보내도
+    // 서버는 `quantity=1` row N 개로 풀어서 저장합니다. 개별 품목 단위
+    // 상태 토글(`OrderItem.completed`)·체크리스트 UX를 자연스럽게 지원하기 위함.
+    // `totalPrice`는 클라이언트 값을 그대로 저장하므로 행 합계와 동일합니다.
+    const createLines: Prisma.OrderItemCreateManyOrderInput[] = dto.items.flatMap(
+      (row): Prisma.OrderItemCreateManyOrderInput[] =>
+        Array.from(
+          { length: row.quantity },
+          (): Prisma.OrderItemCreateManyOrderInput => ({
+            menuId: row.menuId,
+            price: row.price,
+            quantity: 1,
+          }),
+        ),
     );
 
     const order = await this.prisma.order.create({
