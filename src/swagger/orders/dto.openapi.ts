@@ -98,6 +98,7 @@ export const OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA: Record<string, unknown> =
     'paymentStatus',
     'customerName',
     'phoneNumber',
+    'deleted',
     'createdAt',
     'updatedAt',
     'items',
@@ -122,6 +123,12 @@ export const OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA: Record<string, unknown> =
       type: 'string',
       nullable: true,
       example: '01012345678',
+    },
+    deleted: {
+      type: 'boolean',
+      example: false,
+      description:
+        '소프트 삭제 여부(`PATCH /orders/{id}/toggle-deleted`로 운영자가 토글). `status === CANCELED`와는 별개 개념이며, 신규 주문은 항상 `false`로 생성됩니다.',
     },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },

@@ -317,3 +317,28 @@ const ORDER_ITEM_PATCH_TOGGLE_COMPLETED: DecoratorArg[][] = [
 
 export const ApiOrderItemToggleCompletedDocs = () =>
   composeMethodGroups(ORDER_ITEM_PATCH_TOGGLE_COMPLETED);
+
+const ORDER_PATCH_TOGGLE_DELETED: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '주문 소프트 삭제 토글(`Order.deleted` 반전)',
+      description:
+        '**JWT 필수.** `PATCH /orders/{id}/toggle-deleted`. 본문 없음.\n\n' +
+        '해당 `id`가 **JWT `sub` 스토어**의 주문이어야 하며, 그렇지 않으면 **404**(타 스토어 정보 누출 방지). ' +
+        '`deleted`를 현재 값의 **반대**로 갱신합니다. `status`/`paymentStatus`/품목은 변경하지 않으며, **취소(`CANCELED`)와는 별개 개념**입니다(주문 자체를 운영자가 목록에서 숨길 때 사용).\n\n' +
+        '응답은 갱신된 **Order 전체 + items**(품목마다 `completed`·`menu.name` 포함).',
+    }),
+    ApiParam(ORDER_ID_PARAM),
+    ApiOkResponse({
+      description: '갱신된 Order + items(menu 이름 포함)',
+      schema: OPENAPI_ORDER_WITH_ITEMS_AND_MENU_SCHEMA,
+    }),
+    ApiNotFoundResponse({
+      description: '해당 주문 없음 또는 다른 스토어 주문',
+    }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+  ],
+];
+
+export const ApiOrderToggleDeletedDocs = () =>
+  composeMethodGroups(ORDER_PATCH_TOGGLE_DELETED);

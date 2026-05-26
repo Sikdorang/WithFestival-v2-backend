@@ -90,6 +90,28 @@ export class OrdersService {
   }
 
   /**
+   * 주문 소프트 삭제 토글. `Order.deleted`를 현재 값의 반대로 갱신합니다.
+   * - JWT `storeId`와 일치하지 않으면 **404**(타 스토어 정보 누출 방지)
+   * - `status`/`paymentStatus`/품목은 건드리지 않습니다. (취소와는 별개 개념)
+   * - 응답은 갱신된 Order 전체 + items(menu 이름 포함).
+   */
+  async toggleDeleted(storeId: number, orderId: number) {
+    const existing = await this.prisma.order.findFirst({
+      where: { id: orderId, storeId },
+      select: { id: true, deleted: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Order not found for this store');
+    }
+
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { deleted: !existing.deleted },
+      include: ORDER_DETAIL_INCLUDE,
+    });
+  }
+
+  /**
    * 주문 품목(`OrderItem`) 완료 상태 토글.
    * - 프론트는 `itemId`만 전달; 소속 주문/스토어는 서버가 조회·검증
    * - JWT `storeId`와 일치하지 않으면 **404**(타 스토어 품목 정보 누출 방지)

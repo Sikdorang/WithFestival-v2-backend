@@ -24,6 +24,7 @@ import {
   ApiOrdersStaffControllerDocs,
   ApiOrderStatusCanceledDocs,
   ApiOrderStatusCompletedDocs,
+  ApiOrderToggleDeletedDocs,
 } from '../swagger/orders/orders.swagger';
 import { CreatePublicOrderDto } from './dto/create-public-order.dto';
 import { OrdersService } from './orders.service';
@@ -110,5 +111,14 @@ export class OrdersStaffController {
     @Param('itemId', ParseIntPipe) itemId: number,
   ) {
     return this.ordersService.toggleItemCompleted(storeId, itemId);
+  }
+
+  @Patch(':id/toggle-deleted')
+  @ApiOrderToggleDeletedDocs()
+  toggleDeleted(
+    @CurrentStoreId() storeId: number,
+    @Param('id', ParseIntPipe) orderId: number,
+  ) {
+    return this.ordersService.toggleDeleted(storeId, orderId);
   }
 }

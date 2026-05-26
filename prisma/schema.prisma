@@ -129,6 +129,9 @@ model Order {
   customerName String? @db.VarChar(200)
   phoneNumber  String? @db.VarChar(32)
 
+  /// soft delete (운영자가 토글로 숨김 처리; `status === CANCELED`와는 별개 개념)
+  deleted    Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
