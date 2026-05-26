@@ -172,6 +172,15 @@ export class OrdersService {
     });
   }
 
+  /** JWT 스토어 기준 **취소된** 주문만(`status === CANCELED`), 최신순, 품목 포함. */
+  listCanceledByStore(storeId: number) {
+    return this.prisma.order.findMany({
+      where: { storeId, status: OrderStatus.CANCELED },
+      orderBy: { createdAt: 'desc' },
+      include: ORDER_DETAIL_INCLUDE,
+    });
+  }
+
   /** JWT 없이 본문의 `storeId`·`boothId`·`tableId`로 주문 (부스 PK는 현재 `Store.id` 한 종류) */
   async createFromPublicDto(dto: CreatePublicOrderDto) {
     if (dto.storeId !== dto.boothId) {

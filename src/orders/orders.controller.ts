@@ -16,6 +16,7 @@ import {
   ApiOrderCreatePublicDocs,
   ApiOrderItemToggleCompletedDocs,
   ApiOrderListAllDocs,
+  ApiOrderListCanceledDocs,
   ApiOrderListDocs,
   ApiOrderPaymentFailedDocs,
   ApiOrderPaymentPaidDocs,
@@ -58,6 +59,12 @@ export class OrdersStaffController {
   @ApiOrderListAllDocs()
   listAll(@CurrentStoreId() storeId: number) {
     return this.ordersService.listAllByStore(storeId);
+  }
+
+  @Get('canceled')
+  @ApiOrderListCanceledDocs()
+  listCanceled(@CurrentStoreId() storeId: number) {
+    return this.ordersService.listCanceledByStore(storeId);
   }
 
   @Patch(':id/payment/paid')

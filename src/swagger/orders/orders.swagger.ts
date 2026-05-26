@@ -180,6 +180,25 @@ const ORDER_LIST_ALL_DECORATOR_GROUPS: DecoratorArg[][] = [
 export const ApiOrderListAllDocs = () =>
   composeMethodGroups(ORDER_LIST_ALL_DECORATOR_GROUPS);
 
+const ORDER_LIST_CANCELED_DECORATOR_GROUPS: DecoratorArg[][] = [
+  [
+    ApiOperation({
+      summary: '취소된 주문만 조회',
+      description:
+        '**JWT 필수.** `GET /orders/canceled`. JWT **`sub`(store PK)** 스토어의 **취소(`status === CANCELED`) 주문**만 반환합니다(`paymentStatus` 무관).\n\n' +
+        '`createdAt` **내림차순**, 각 주문 **`items`**에 **`menu.id`·`menu.name`·`completed`** 포함.',
+    }),
+    ApiOkResponse({
+      description: 'Order[] — status가 CANCELED인 주문만, items에 menu 정보 포함',
+      schema: OPENAPI_ORDER_LIST_WITH_MENU_RESPONSE_SCHEMA,
+    }),
+    ApiUnauthorizedResponse({ description: 'JWT 없음/만료/무효' }),
+  ],
+];
+
+export const ApiOrderListCanceledDocs = () =>
+  composeMethodGroups(ORDER_LIST_CANCELED_DECORATOR_GROUPS);
+
 const ORDER_ID_PARAM = {
   name: 'id',
   type: Number,
