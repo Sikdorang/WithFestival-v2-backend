@@ -7,7 +7,12 @@ export const OPENAPI_CREATE_ORDER = {
   item: {
     menuId: { example: 1, minimum: 1 } satisfies ApiPropertyOptions,
     price: { example: 4500, minimum: 0 } satisfies ApiPropertyOptions,
-    quantity: { example: 2, minimum: 1 } satisfies ApiPropertyOptions,
+    quantity: {
+      example: 2,
+      minimum: 1,
+      description:
+        '주문 수량. 서버는 이 값을 N으로 받으면 `quantity=1` 행을 **N개로 분할** 저장합니다(개별 품목 단위 완료 토글 지원).',
+    } satisfies ApiPropertyOptions,
   },
   totalPrice: {
     example: 9000,
@@ -64,7 +69,13 @@ export const OPENAPI_ORDER_ITEM_WITH_MENU_SCHEMA: Record<string, unknown> = {
     id: { type: 'integer', example: 1 },
     orderId: { type: 'integer', example: 10 },
     menuId: { type: 'integer', example: 3 },
-    quantity: { type: 'integer', example: 2, minimum: 1 },
+    quantity: {
+      type: 'integer',
+      example: 1,
+      minimum: 1,
+      description:
+        '행 분할 저장 도입 이후 신규 주문의 행은 항상 `1`. 분할 이전(레거시) 주문에는 1 이상의 값이 남아 있을 수 있습니다.',
+    },
     price: { type: 'integer', example: 4500, minimum: 0, description: '주문 시점 단가 스냅샷' },
     completed: {
       type: 'boolean',

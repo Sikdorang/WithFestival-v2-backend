@@ -108,6 +108,7 @@ const ORDER_POST_PUBLIC_DECORATOR_GROUPS: DecoratorArg[][] = [
         '**JWT 없음.** `POST /orders`\n\n' +
         '본문에 **`storeId`**, **`boothId`**, **`tableId`**와 품목·총액·입금자명을 둡니다. 현재 DB 모델에서 **스토어=부스**이므로 **`storeId === boothId`**(`Store.id`)여야 하며, 둘이 다르면 **400**입니다.\n\n' +
         '`items`: 메뉴 id·단가(주문 시점 스냅샷)·수량. 각 `menuId`는 해당 스토어의 **활성 메뉴**(`deleted === false`)이어야 합니다.\n\n' +
+        '**행 분할 저장 (중요)**: 본문에 `{ menuId: 1, quantity: 2 }` 한 줄을 보내도 서버는 `OrderItem` **`quantity=1` 행 2개**로 분리해 저장합니다. 동일 메뉴를 N개 주문해도 `OrderItem` 행이 N개 생성되어 개별 단위로 `completed` 토글이 가능합니다(`PATCH /orders/items/{itemId}/toggle-completed`). 응답의 `items` 배열은 분할 결과를 그대로 반영합니다.\n\n' +
         '`phoneNumber`는 주문자 전화번호로 `Order.phoneNumber`에 저장합니다.\n\n' +
         '`totalPrice`는 프론트 값을 그대로 저장합니다(행 합계와 검증하지 않음).\n\n' +
         '생성 시 `status`는 **RECEIVED**, `paymentStatus`는 **PENDING**입니다. 응답 품목에는 **`menu.id`·`menu.name`**(현재 DB 기준)이 포함됩니다.',
